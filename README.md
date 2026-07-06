@@ -4,7 +4,11 @@
 easySVA（easy Surveillance Video Analytics）是一款面向中小企业的轻量化分布式 AI 视频分析系统。项目基于若依前后端分离框架开发，AI 分析器采用 C++ 实现，允许大模型对告警结果进行复核。整体架构清晰、代码简洁规范，非常适合零基础及初学者入门学习视频分析相关技术。
 
 #### 软件架构
-软件架构说明
+本仓库中为一键源码编译的脚本，会自动安装开发环境、源代码并进行编译。
+项目本身的源代码分在三个仓库中。
+SVA-backend  系统后台     https://gitee.com/andersonwu/SVA-backend
+SVA-web      系统前端     https://gitee.com/andersonwu/SVA-web
+SVA-server   C++分析器    https://gitee.com/andersonwu/SVA-server
 
 
 #### 安装教程
