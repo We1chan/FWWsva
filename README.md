@@ -35,5 +35,7 @@ easySVA-lib.zip下载地址pan.quark.cn/s/b13f7c9baf9e
 
 
 #### 技术交流群
+欢迎添加微信交流：
+![添加微信](docs/images/weixin.png)
 
 QQ群   1050621062  easySVA交流群
