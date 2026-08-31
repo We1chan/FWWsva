@@ -74,14 +74,25 @@ if [[ "$gpu_answer" != "g" && "$gpu_answer" != "G" && "$gpu_answer" != "c" && "$
     exit 1
 fi
 
+# CPU Runtime 始终安装，供无GPU环境或GPU依赖异常时自动回退。
+echo "安装CPU版 ONNX Runtime 1.26.0"
+rm -rf /usr/local/onnxruntime
+mkdir -p /usr/local/onnxruntime
+tar -xzf onnxruntime-linux-x64-1.26.0.tgz \
+    --strip-components=1 -C /usr/local/onnxruntime
+
 if [[ "$gpu_answer" == "g" || "$gpu_answer" == "G" ]]; then
     echo "将安装cuda13.1 耗时较长，请耐心等待"
     chmod +x cuda_13.1.2_590.48.01_linux.run
-#不安装GUI的相关工具
-./cuda_13.1.2_590.48.01_linux.run --silent --toolkit --tmpdir /opt
+# WSL由Windows提供GPU驱动，此处只安装CUDA Toolkit，并禁用旧安装器的GUI探测。
+env -u DISPLAY ./cuda_13.1.2_590.48.01_linux.run \
+    --silent --toolkit --toolkitpath=/usr/local/cuda-13.1 --tmpdir=/opt
 
-tar -zxvf onnxruntime-linux-x64-gpu_cuda13-1.26.0.tgz
-mv onnxruntime-linux-x64-gpu-1.26.0 /usr/local/onnxruntime
+echo "安装GPU版 ONNX Runtime 1.26.0"
+rm -rf /usr/local/onnxruntime-gpu
+mkdir -p /usr/local/onnxruntime-gpu
+tar -xzf onnxruntime-linux-x64-gpu_cuda13-1.26.0.tgz \
+    --strip-components=1 -C /usr/local/onnxruntime-gpu
 
 echo 'export PATH="/usr/local/cuda/bin:$PATH"' >> /etc/profile
 echo 'export LD_LIBRARY_PATH="/usr/local/cuda/lib64:$LD_LIBRARY_PATH"' >> /etc/profile
@@ -105,17 +116,10 @@ apt update
 apt -y install cudnn9-cuda-13
 
 VER=10.15.1.29-1+cuda13.1
-sudo apt install -y libnvinfer10=$VER libnvinfer-plugin10=$VER libnvonnxparsers10=$VER libnvinfer-dev=$VER  libnvinfer-plugin-dev=$VER  libnvonnxparsers-dev=$VER libnvinfer-headers-dev=$VER  libnvinfer-headers-plugin-dev=$VER 
+apt install -y libnvinfer10=$VER libnvinfer-plugin10=$VER libnvonnxparsers10=$VER libnvinfer-dev=$VER libnvinfer-plugin-dev=$VER libnvonnxparsers-dev=$VER libnvinfer-headers-dev=$VER libnvinfer-headers-plugin-dev=$VER
 
 #防止系统自动更新这些包导致版本不兼容
-sudo apt-mark hold libnvinfer10 libnvinfer-plugin10 libnvonnxparsers10 libnvinfer-dev libnvinfer-plugin-dev libnvonnxparsers-dev libnvinfer-headers-dev libnvinfer-headers-plugin-dev
-fi
-
-#如果输入的是cpu版本，就安装onnxruntime的cpu版本
-if [[ "$gpu_answer" == "c" || "$gpu_answer" == "C" ]]; then
-    echo "将编译CPU版本的"
-tar -zxvf onnxruntime-linux-x64-1.26.0.tgz
-mv onnxruntime-linux-x64-1.26.0 /usr/local/onnxruntime
+apt-mark hold libnvinfer10 libnvinfer-plugin10 libnvonnxparsers10 libnvinfer-dev libnvinfer-plugin-dev libnvonnxparsers-dev libnvinfer-headers-dev libnvinfer-headers-plugin-dev
 fi
 
 read -p "完成了onnxruntime安装，输入y/Y继续执行脚本: " answer
@@ -341,26 +345,28 @@ sleep 2
 
 git clone --depth=1 "$REPO_BASE/SVA-server.git" /opt/SVA/SVA-server/
 
+# CPU版本始终编译，作为自动回退路径。
+echo "编译CPU版本的Analyzer"
+sleep 2
+cmake -S /opt/SVA/SVA-server -B /opt/SVA/SVA-server/build-cpu \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DONNXRUNTIME_ROOT=/usr/local/onnxruntime \
+    -DSVA_ONNXRUNTIME_GPU=OFF
+cmake --build /opt/SVA/SVA-server/build-cpu \
+    --parallel $(($(nproc)>6?6:$(nproc)))
+
 if [[ "$gpu_answer" == "g" || "$gpu_answer" == "G" ]]; then
     echo "编译GPU版本的Analyzer"
     sleep 2
-cd /opt/SVA/SVA-server/
-mkdir build && cd build
-cmake ..
-make -j$(($(nproc)>6?6:$(nproc)))
-cp /opt/SVA/SVA-server/config.json /opt/SVA/
+    cmake -S /opt/SVA/SVA-server -B /opt/SVA/SVA-server/build-gpu \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DONNXRUNTIME_ROOT=/usr/local/onnxruntime-gpu \
+        -DSVA_ONNXRUNTIME_GPU=ON
+    cmake --build /opt/SVA/SVA-server/build-gpu \
+        --parallel $(($(nproc)>6?6:$(nproc)))
 fi
 
-if [[ "$gpu_answer" == "c" || "$gpu_answer" == "C" ]]; then
-    echo "编译CPU版本的Analyzer"
-    sleep 2
-    cd /opt/SVA/SVA-server/
-mkdir build && cd build
-cmake .. -DSVA_ONNXRUNTIME_GPU=OFF
-make -j$(($(nproc)>6?6:$(nproc)))
 cp /opt/SVA/SVA-server/config.json /opt/SVA/
-fi
-
 
 echo "接下来将编译前后端，感谢RuoYi-Vue-Plus的开源贡献"
 sleep 2
@@ -397,38 +403,6 @@ mysql -uroot -peasySVA.EZ easySVA < "$SQL_FILE"
 git clone --depth=1 "$REPO_BASE/SVA-backend.git" /opt/SVA/SVA-backend
 cd /opt/SVA/SVA-backend
 mvn clean package -Dmaven.test.skip=true
-
-#只需要创建rc.local并且可执行权限，系统就会启动的时候自动调用
-cat <<EOF >/etc/rc.local
-#!/bin/sh -e
-#
-# rc.local
-#
-# This script is executed at the end of each multiuser runlevel.
-# Make sure that the script will "exit 0" on success or any other
-# value on error.
-#
-# In order to enable or disable this script just change the execution
-# bits.
-#
-# By default this script does nothing.
-
-#In order to avoid the failure to start freeswitch due to failure to obtain the address,
-#start it manually
-
-sleep 3
-cd /opt/SVA/backend/ && java -jar backend.jar &>log.out&
-
-sleep 2
-cd /opt/SVA/mediaServer/ && ./MediaServer -d &
-
-sleep 2
-cd /opt/SVA/server/ && ./Analyzer -f /opt/SVA/config.json &>log.out&
-
-exit 0
-EOF
-
-chmod +x /etc/rc.local
 
 ############################安装web#######################################
 apt install -y nginx-full
@@ -510,14 +484,32 @@ echo "是否要把编译后的软件部署到指定目录，实现开机自启�
 read -r deploy_choice
 if [[ "$deploy_choice" =~ ^[Yy]$ ]]; then
     echo "正在部署软件并设置开机自启..."
-    # 在这里添加部署和设置开机自启的命令
     mkdir -p /opt/SVA/backend
-cp /opt/SVA/SVA-backend/ruoyi-admin/target/ruoyi-admin.jar /opt/SVA/backend/backend.jar
-mkdir -p /opt/SVA/mediaServer
-cp /opt/SVA/SVA-mediaServer/release/linux/Release/* /opt/SVA/mediaServer/ -r
-mkdir -p /opt/SVA/server
+    cp /opt/SVA/SVA-backend/ruoyi-admin/target/ruoyi-admin.jar /opt/SVA/backend/backend.jar
 
-cp /opt/SVA/SVA-server/build/Analyzer  /opt/SVA/server/Analyzer
+    mkdir -p /opt/SVA/mediaServer
+    cp /opt/SVA/SVA-mediaServer/release/linux/Release/* /opt/SVA/mediaServer/ -r
+
+    mkdir -p /opt/SVA/server
+    install -m 0755 /opt/SVA/SVA-server/build-cpu/Analyzer /opt/SVA/server/Analyzer.cpu
+    cp /opt/SVA/server/Analyzer.cpu /opt/SVA/server/Analyzer
+
+    if [[ "$gpu_answer" == "g" || "$gpu_answer" == "G" ]]; then
+        install -m 0755 /opt/SVA/SVA-server/build-gpu/Analyzer /opt/SVA/server/Analyzer-gpu
+    fi
+
+    install -m 0755 "$SCRIPT_DIR/deploy/scripts/easysva-analyzer-launcher.sh" \
+        /opt/SVA/server/easysva-analyzer-launcher.sh
+    install -m 0644 "$SCRIPT_DIR/deploy/systemd/easysva-backend.service" \
+        /etc/systemd/system/easysva-backend.service
+    install -m 0644 "$SCRIPT_DIR/deploy/systemd/easysva-media.service" \
+        /etc/systemd/system/easysva-media.service
+    install -m 0644 "$SCRIPT_DIR/deploy/systemd/easysva-analyzer.service" \
+        /etc/systemd/system/easysva-analyzer.service
+
+    systemctl daemon-reload
+    systemctl enable easysva-backend easysva-media easysva-analyzer \
+        nginx mariadb redis-server
 
 fi
 

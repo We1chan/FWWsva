@@ -38,7 +38,7 @@ chmod +x /opt/FWWsva/install_source.sh
 /opt/FWWsva/install_source.sh
 ```
 
-3. 根据提示选择GPU或CPU版本；安装结束时选择部署，重启系统后服务会自动启动。
+3. 根据提示选择GPU或CPU版本。GPU模式会同时编译 GPU Analyzer 和 CPU 回退版本；CPU模式只安装CPU运行库。安装结束时选择部署，脚本会安装systemd服务和自动选择启动器，重启后服务会自动启动。
 
 4. 浏览器访问 `http://服务器IP/`，默认账号为 `admin`，默认密码为 `admin123`。
 
