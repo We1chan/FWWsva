@@ -17,7 +17,7 @@ easySVA（easy Surveillance Video Analytics）是一款面向中小企业的轻�
 
 - Ubuntu 22.04 x86_64
 - CPU版本无需NVIDIA显卡
-- GPU版本需要NVIDIA GPU，并满足安装脚本提示的驱动版本要求
+- GPU版本需要NVIDIA GPU，并满足安装脚本提示的驱动版本要求；WSL2 使用 Windows 主机驱动，不要在 WSL 内另装 Linux 显卡驱动
 - 安装和源码编译通常需要30分钟以上
 
 ##### 源代码部署
@@ -44,7 +44,9 @@ chmod +x /opt/FWWsva/install_source.sh
 
 5. 数据库中的 `zlm_server` 和 `sva_server` 默认地址为 `127.0.0.1`。分布式部署时需要改成对应服务器的实际IP地址。
 
-WSL2 验收环境的服务结构、端口、日志命令与验收步骤见 [验收点1：部署与架构说明](docs/验收点1-部署与架构说明.md)。
+WSL2 验收环境的服务结构、GPU 验证、端口、日志命令与验收步骤见 [验收点1：部署与架构说明](docs/验收点1-部署与架构说明.md)。
+
+WSL2 验收部署会在服务启动时自动检测 NVIDIA GPU 和 CUDA 依赖；检测失败时自动使用 CPU Analyzer。双击 `关闭easySVA.bat` 会关闭共享 WSL 虚拟机并释放 `vmmemWSL`，因此也会停止其他 WSL 发行版和 Docker 的 WSL 后端；使用 `--distro-only` 可只终止 easySVA。
 
 如需使用仓库镜像或其他GitHub所有者，可在安装前设置 `EASYSVA_REPO_BASE`；如依赖包不在 `/opt`，可设置 `EASYSVA_LIB_ARCHIVE`。
 

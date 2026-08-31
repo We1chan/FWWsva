@@ -10,10 +10,8 @@ wsl.exe -d "%DISTRO%" -u root -- true >nul 2>&1
 if errorlevel 1 goto :wsl_error
 
 echo [2/4] Keeping WSL alive in the background...
-wsl.exe -d "%DISTRO%" -u root -- sh -lc "pgrep -f '^sleep infinity$' >/dev/null" >nul 2>&1
-if errorlevel 1 (
-    powershell.exe -NoProfile -WindowStyle Hidden -Command "Start-Process -FilePath $env:WINDIR\System32\wsl.exe -ArgumentList @('-d','%DISTRO%','-u','root','--','sleep','infinity') -WindowStyle Hidden" >nul 2>&1
-)
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0deploy\scripts\start-wsl-keepalive.ps1" -Distro "%DISTRO%" >nul 2>&1
+if errorlevel 1 goto :keepalive_error
 
 echo [3/4] Starting database, backend, media and analyzer services...
 wsl.exe -d "%DISTRO%" -u root -- systemctl start mariadb redis-server nginx easysva-backend easysva-media easysva-analyzer easysva-rtsp-simulator >nul 2>&1
@@ -26,7 +24,7 @@ set /a WAIT_COUNT=0
 curl.exe --fail --silent --output NUL --max-time 3 http://localhost/prod-api/captchaImage
 if not errorlevel 1 goto :ready
 set /a WAIT_COUNT+=1
-if %WAIT_COUNT% GEQ 30 goto :backend_timeout
+if %WAIT_COUNT% GEQ 120 goto :backend_timeout
 ping.exe -n 2 127.0.0.1 >nul
 goto :wait_backend
 
@@ -51,9 +49,15 @@ echo Run this in WSL for details: systemctl status easysva-backend
 pause
 exit /b 1
 
+:keepalive_error
+echo.
+echo ERROR: Failed to create the WSL keepalive process.
+pause
+exit /b 1
+
 :backend_timeout
 echo.
-echo ERROR: The backend API did not become ready within 30 seconds.
+echo ERROR: The backend API did not become ready within 120 seconds.
 echo Refresh %URL% later or inspect the easysva-backend logs.
 pause
 exit /b 1

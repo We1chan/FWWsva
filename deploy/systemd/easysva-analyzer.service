@@ -6,8 +6,7 @@ Requires=easysva-backend.service easysva-media.service
 [Service]
 Type=simple
 WorkingDirectory=/opt/SVA/server
-Environment=LD_LIBRARY_PATH=/usr/local/onnxruntime/lib:/usr/local/lib:/usr/lib/x86_64-linux-gnu
-ExecStart=/opt/SVA/server/Analyzer -f /opt/SVA/config.json
+ExecStart=/opt/SVA/server/easysva-analyzer-launcher.sh -f /opt/SVA/config.json
 Restart=on-failure
 RestartSec=5
 
