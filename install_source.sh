@@ -1,6 +1,30 @@
 #!/bin/bash
 #本脚本用于在Ubuntu 22.04系统上安装easySVA的源码编译环境，包括依赖包、FFmpeg、OpenCV、MediaServer、前后端等组件。
-#请确保脚本和easySVA-lib.zip在/opt目录下，并以root用户执行。
+#请确保easySVA-lib.zip位于/opt目录下，并以root用户执行。
+
+set -o pipefail
+
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+LIB_ARCHIVE="${EASYSVA_LIB_ARCHIVE:-/opt/easySVA-lib.zip}"
+REPO_BASE="${EASYSVA_REPO_BASE:-https://github.com/We1chan}"
+SQL_FILE="$SCRIPT_DIR/data_20250520.sql"
+
+if [[ $EUID -ne 0 ]]; then
+    echo "请先执行 sudo -s 切换为root用户，再运行本脚本。"
+    exit 1
+fi
+
+if [[ ! -f "$LIB_ARCHIVE" ]]; then
+    echo "未找到依赖包: $LIB_ARCHIVE"
+    echo "请将easySVA-lib.zip下载到/opt目录，或通过EASYSVA_LIB_ARCHIVE指定路径。"
+    exit 1
+fi
+
+if [[ ! -f "$SQL_FILE" ]]; then
+    echo "未找到数据库初始化文件: $SQL_FILE"
+    echo "请从FWWsva仓库完整克隆后运行install_source.sh。"
+    exit 1
+fi
 
 
 cat <<'EOF'
@@ -21,7 +45,8 @@ echo "                 "
 echo "                 "
 echo "欢迎试用easySVA的源码编译脚本"
 echo "推荐在Ubuntu 22.04系统上安装"
-echo "确保脚本和easySVA-lib.zip在/opt目录下"
+echo "源码仓库: $REPO_BASE"
+echo "依赖包: $LIB_ARCHIVE"
 read -p "请sudo -s切换为root用户后再进行安装，输入y/Y继续执行脚本: " answer
 if [[ "$answer" != "y" && "$answer" != "Y" ]]; then
     echo "感谢您对我们的支持"
@@ -37,7 +62,7 @@ apt update
 apt install -y build-essential unzip
 
 cd /opt
-unzip easySVA-lib.zip
+unzip "$LIB_ARCHIVE"
 cd easySVA-lib
 
 #让用户选择编译gpu版本还是cpu版本
@@ -296,7 +321,7 @@ make -j$(($(nproc)>6?6:$(nproc)))
 make install
 
 
-git clone https://gitee.com/andersonwu/SVA-mediaServer.git /opt/SVA/SVA-mediaServer
+git clone --depth=1 "$REPO_BASE/SVA-mediaServer.git" /opt/SVA/SVA-mediaServer
 cd /opt/SVA/SVA-mediaServer
 
 mkdir build && cd build
@@ -314,7 +339,7 @@ cp /opt/SVA/SVA-mediaServer/conf/config.ini /opt/SVA/SVA-mediaServer/release/lin
 echo "编译AI分析器Analyzer"
 sleep 2
 
-git clone  https://gitee.com/andersonwu/SVA-server.git /opt/SVA/SVA-server/
+git clone --depth=1 "$REPO_BASE/SVA-server.git" /opt/SVA/SVA-server/
 
 if [[ "$gpu_answer" == "g" || "$gpu_answer" == "G" ]]; then
     echo "编译GPU版本的Analyzer"
@@ -365,11 +390,11 @@ FLUSH PRIVILEGES;
 create database easySVA default character set utf8mb4 collate utf8mb4_unicode_ci;
 EOF
 
-mysql -uroot -peasySVA.EZ easySVA < ./data_20250520.sql
+mysql -uroot -peasySVA.EZ easySVA < "$SQL_FILE"
 
 
 
-git clone https://gitee.com/andersonwu/SVA-backend.git /opt/SVA/SVA-backend
+git clone --depth=1 "$REPO_BASE/SVA-backend.git" /opt/SVA/SVA-backend
 cd /opt/SVA/SVA-backend
 mvn clean package -Dmaven.test.skip=true
 
@@ -414,7 +439,7 @@ apt install -y nodejs
 
 #前端编译
 #用户名为  admin/admin123
-git clone https://gitee.com/andersonwu/SVA-web.git /var/www/SVA-web
+git clone --depth=1 "$REPO_BASE/SVA-web.git" /var/www/SVA-web
 cd /var/www/SVA-web
 npm config set registry https://registry.npmmirror.com/
 npm install

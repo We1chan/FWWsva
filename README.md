@@ -4,21 +4,47 @@
 easySVA（easy Surveillance Video Analytics）是一款面向中小企业的轻量化分布式 AI 视频分析系统。项目基于若依前后端分离框架开发，AI 分析器采用 C++ 实现，允许大模型对告警结果进行复核。整体架构清晰、代码简洁规范，非常适合零基础及初学者入门学习视频分析相关技术。
 
 #### 软件架构
-本仓库中为一键源码编译的脚本，会自动安装开发环境、源代码并进行编译。
-项目本身的源代码分在三个仓库中。
+本仓库是easySVA的部署入口，包含一键源码编译脚本和数据库初始化文件。业务源码及流媒体服务位于以下仓库，安装脚本会自动从GitHub克隆并编译：
 
-- SVA-backend  系统后台     https://gitee.com/andersonwu/SVA-backend
-- SVA-web      系统前端     https://gitee.com/andersonwu/SVA-web
-- SVA-server   C++分析器    https://gitee.com/andersonwu/SVA-server
+- [SVA-backend](https://github.com/We1chan/SVA-backend)  系统后台（Java / Spring Boot）
+- [SVA-web](https://github.com/We1chan/SVA-web)  系统前端（Vue 2）
+- [SVA-server](https://github.com/We1chan/SVA-server)  C++ AI视频分析器
+- [SVA-mediaServer](https://github.com/We1chan/SVA-mediaServer)  流媒体服务（基于ZLMediaKit）
 
 
 #### 安装教程
-##### 源代码编译
-1. 推荐使用ubuntu22.04。下载install_source.sh脚本和easySVA-lib.zip文件，并拷贝到/opt目录下。easySVA-lib.zip包含了cuda、onnxruntime、ffmepg、opencv等所需代码。
-2. 以root身份执行install_source.sh脚本就可以进行安装，过程中需要选择编译GPU版本还是CPU版本，最后如果选择了部署，那么系统重启会自动启动所有服务
-3. 数据库中zlm_server和sva_server的IP地址为127.0.0.1,需要修改为实际的IP地址。
+##### 环境要求
 
-easySVA-lib.zip下载地址pan.quark.cn/s/b13f7c9baf9e
+- Ubuntu 22.04 x86_64
+- CPU版本无需NVIDIA显卡
+- GPU版本需要NVIDIA GPU，并满足安装脚本提示的驱动版本要求
+- 安装和源码编译通常需要30分钟以上
+
+##### 源代码部署
+
+1. 下载依赖包 `easySVA-lib.zip` 到 `/opt/easySVA-lib.zip`。该文件包含CUDA、ONNX Runtime、FFmpeg、OpenCV、模型等大型依赖。
+
+   下载地址：https://pan.quark.cn/s/b13f7c9baf9e
+
+2. 在目标Ubuntu设备上执行：
+
+```bash
+sudo apt update
+sudo apt install -y git unzip
+cd /opt
+sudo git clone https://github.com/We1chan/FWWsva.git
+sudo -s
+chmod +x /opt/FWWsva/install_source.sh
+/opt/FWWsva/install_source.sh
+```
+
+3. 根据提示选择GPU或CPU版本；安装结束时选择部署，重启系统后服务会自动启动。
+
+4. 浏览器访问 `http://服务器IP/`，默认账号为 `admin`，默认密码为 `admin123`。
+
+5. 数据库中的 `zlm_server` 和 `sva_server` 默认地址为 `127.0.0.1`。分布式部署时需要改成对应服务器的实际IP地址。
+
+如需使用仓库镜像或其他GitHub所有者，可在安装前设置 `EASYSVA_REPO_BASE`；如依赖包不在 `/opt`，可设置 `EASYSVA_LIB_ARCHIVE`。
 
 #### 使用说明
 
