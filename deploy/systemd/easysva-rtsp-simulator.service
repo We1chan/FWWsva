@@ -1,0 +1,13 @@
+[Unit]
+Description=easySVA simulated RTSP camera
+After=network.target easysva-media.service
+Requires=easysva-media.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/ffmpeg -hide_banner -loglevel warning -re -stream_loop -1 -i /mnt/d/Coding/fwwsva/test1.mp4 -map 0:v:0 -an -vf scale=1280:-2,format=yuv420p -c:v libx264 -preset veryfast -tune zerolatency -g 25 -f rtsp -rtsp_transport tcp rtsp://127.0.0.1:9994/live/mock-camera
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,14 @@
+[Unit]
+Description=easySVA backend
+After=network.target mariadb.service redis-server.service
+Requires=mariadb.service redis-server.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/SVA/backend
+ExecStart=/usr/bin/java -jar /opt/SVA/backend/backend.jar --ruoyi.profile=/var/www/SVA-web/upload
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

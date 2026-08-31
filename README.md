@@ -44,6 +44,8 @@ chmod +x /opt/FWWsva/install_source.sh
 
 5. 数据库中的 `zlm_server` 和 `sva_server` 默认地址为 `127.0.0.1`。分布式部署时需要改成对应服务器的实际IP地址。
 
+WSL2 验收环境的服务结构、端口、日志命令与验收步骤见 [验收点1：部署与架构说明](docs/验收点1-部署与架构说明.md)。
+
 如需使用仓库镜像或其他GitHub所有者，可在安装前设置 `EASYSVA_REPO_BASE`；如依赖包不在 `/opt`，可设置 `EASYSVA_LIB_ARCHIVE`。
 
 #### 使用说明

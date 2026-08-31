@@ -1,0 +1,16 @@
+{
+  "code": "node-wsl22",
+  "name": "easySVA WSL2",
+  "describe": "Acceptance point 1 deployment",
+  "host": "127.0.0.1",
+  "adminPort": 9991,
+  "mediaHttpPort": 9992,
+  "analyzerPort": 9993,
+  "mediaRtspPort": 9994,
+  "mediaSecret": "V3522025zlm0aA9ajn7UiOWi",
+  "uploadDir": "/var/www/SVA-web/upload",
+  "modelDir": "/opt/SVA/models",
+  "saveAlarmType": 1,
+  "saveAlarmUrl": "http://127.0.0.1:9114/waring/waring/addFromSvaSimple",
+  "detectEventUrl": "ws://127.0.0.1:9114/websocket/sva/noop"
+}

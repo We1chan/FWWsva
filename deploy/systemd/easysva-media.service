@@ -1,0 +1,13 @@
+[Unit]
+Description=easySVA media server (ZLMediaKit)
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/SVA/mediaServer
+ExecStart=/opt/SVA/mediaServer/MediaServer
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
