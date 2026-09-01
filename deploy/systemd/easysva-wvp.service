@@ -1,0 +1,15 @@
+[Unit]
+Description=easySVA GB28181 signaling service (WVP)
+Wants=network-online.target
+After=network-online.target mariadb.service redis-server.service easysva-gb-media.service
+Requires=mariadb.service redis-server.service easysva-gb-media.service
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/SVA/wvp
+ExecStart=/opt/SVA/wvp/easysva-wvp-launcher.sh
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

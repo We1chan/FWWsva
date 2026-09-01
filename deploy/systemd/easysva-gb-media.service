@@ -1,0 +1,15 @@
+[Unit]
+Description=easySVA GB28181 media server (ZLMediaKit)
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/SVA/mediaServer
+ExecStart=/opt/SVA/mediaServer/MediaServer -c /opt/SVA/gb28181/zlm-gb.ini
+Restart=on-failure
+RestartSec=5
+LimitNOFILE=1048576
+
+[Install]
+WantedBy=multi-user.target

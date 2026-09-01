@@ -10,6 +10,7 @@ easySVA（easy Surveillance Video Analytics）是一款面向中小企业的轻�
 - [SVA-web](https://github.com/We1chan/SVA-web)  系统前端（Vue 2）
 - [SVA-server](https://github.com/We1chan/SVA-server)  C++ AI视频分析器
 - [SVA-mediaServer](https://github.com/We1chan/SVA-mediaServer)  流媒体服务（基于ZLMediaKit）
+- [wvp-GB28181-pro](https://github.com/648540858/wvp-GB28181-pro)  GB28181 SIP信令服务
 
 
 #### 安装教程
@@ -38,7 +39,7 @@ chmod +x /opt/FWWsva/install_source.sh
 /opt/FWWsva/install_source.sh
 ```
 
-3. 根据提示选择GPU或CPU版本。GPU模式会同时编译 GPU Analyzer 和 CPU 回退版本；CPU模式只安装CPU运行库。安装结束时选择部署，脚本会安装systemd服务和自动选择启动器，重启后服务会自动启动。
+3. 根据提示选择GPU或CPU版本。GPU模式会同时编译 GPU Analyzer 和 CPU 回退版本；CPU模式只安装CPU运行库。安装脚本会使用 Java 17 编译 easySVA 后端、使用 Java 21 编译 WVP，并初始化 `easySVA` 与 `wvp` 两个数据库。安装结束时选择部署，脚本会安装systemd服务和自动选择启动器，重启后服务会自动启动。
 
 4. 浏览器访问 `http://服务器IP/`，默认账号为 `admin`，默认密码为 `admin123`。
 
@@ -50,7 +51,41 @@ WSL2 验收部署会在服务启动时自动检测 NVIDIA GPU 和 CUDA 依赖；
 
 双击 `启动easySVA.bat` 时会在 ZLMediaKit 启动后自动恢复数据库中状态为 `RUNNING` 的直连设备代理，避免 WSL 完全关闭后出现“设备仍显示运行、预览却没有画面”。示例与候选视频源见 [`deploy/sample-streams.tsv`](deploy/sample-streams.tsv)；验收演示优先使用本地 RTSP 模拟源，公网 HLS 源可能受网络、代理和源站可用性影响。
 
-如需使用仓库镜像或其他GitHub所有者，可在安装前设置 `EASYSVA_REPO_BASE`；如依赖包不在 `/opt`，可设置 `EASYSVA_LIB_ARCHIVE`。
+如需使用仓库镜像或其他GitHub所有者，可在安装前设置 `EASYSVA_REPO_BASE`；如依赖包不在 `/opt`，可设置 `EASYSVA_LIB_ARCHIVE`。安装器默认使用后端 `v1.2.8` 分支和经过验证的 WVP 提交，必要时可通过 `EASYSVA_BACKEND_REF`、`EASYSVA_WVP_REPO`、`EASYSVA_WVP_REF` 覆盖。
+
+##### GB28181设备接入
+
+部署并重启后，执行以下命令确认后端、WVP、SIP 和独立 ZLMediaKit 均已就绪：
+
+```bash
+sudo easysva-gb-health
+```
+
+国标摄像机的平台接入参数如下：
+
+- SIP服务器地址：easySVA所在服务器可被摄像机访问的IPv4地址
+- SIP服务器端口：`5060`，同时支持TCP和UDP
+- SIP服务器域：`4401020049`
+- SIP服务器ID：`44010200492000000001`
+- SIP认证密码：默认 `admin123`
+
+生产部署应在首次安装前通过环境变量设置独立强密码，例如：
+
+```bash
+export EASYSVA_GB28181_SIP_PASSWORD='replace_with_a_strong_password'
+export EASYSVA_GB28181_ZLM_SECRET='replace_with_a_private_zlm_secret'
+export EASYSVA_WVP_DB_PASSWORD='replace_with_a_database_password'
+/opt/FWWsva/install_source.sh
+```
+
+密码和数据库连接信息安装后保存在 `/etc/easySVA/gb28181.env`，权限为 `0600`。如服务器有多个网卡或自动探测到的地址不是摄像机可达地址，可在安装前设置 `EASYSVA_GB28181_HOST_IP`。防火墙启用 UFW 时，安装器会放行 SIP、国标预览和 RTP 所需端口；外部防火墙仍需放行 `5060/tcp`、`5060/udp`、`9996/tcp`、`9997/tcp`、`10000/udp`、`40002:45000/udp` 和 `50000:55000/udp`。
+
+服务日志和状态可通过以下命令检查：
+
+```bash
+sudo systemctl status easysva-gb-media easysva-wvp
+sudo journalctl -u easysva-gb-media -u easysva-wvp -n 200 --no-pager
+```
 
 #### 使用说明
 
