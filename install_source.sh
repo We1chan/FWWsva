@@ -500,15 +500,19 @@ if [[ "$deploy_choice" =~ ^[Yy]$ ]]; then
 
     install -m 0755 "$SCRIPT_DIR/deploy/scripts/easysva-analyzer-launcher.sh" \
         /opt/SVA/server/easysva-analyzer-launcher.sh
+    install -m 0755 "$SCRIPT_DIR/deploy/scripts/easysva-restore-streams.sh" \
+        /opt/SVA/server/easysva-restore-streams.sh
     install -m 0644 "$SCRIPT_DIR/deploy/systemd/easysva-backend.service" \
         /etc/systemd/system/easysva-backend.service
     install -m 0644 "$SCRIPT_DIR/deploy/systemd/easysva-media.service" \
         /etc/systemd/system/easysva-media.service
     install -m 0644 "$SCRIPT_DIR/deploy/systemd/easysva-analyzer.service" \
         /etc/systemd/system/easysva-analyzer.service
+    install -m 0644 "$SCRIPT_DIR/deploy/systemd/easysva-stream-restore.service" \
+        /etc/systemd/system/easysva-stream-restore.service
 
     systemctl daemon-reload
-    systemctl enable easysva-backend easysva-media easysva-analyzer \
+    systemctl enable easysva-backend easysva-media easysva-analyzer easysva-stream-restore \
         nginx mariadb redis-server
 
 fi

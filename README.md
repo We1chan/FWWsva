@@ -48,6 +48,8 @@ WSL2 验收环境的服务结构、GPU 验证、端口、日志命令与验收�
 
 WSL2 验收部署会在服务启动时自动检测 NVIDIA GPU 和 CUDA 依赖；检测失败时自动使用 CPU Analyzer。双击 `关闭easySVA.bat` 会关闭共享 WSL 虚拟机并释放 `vmmemWSL`，因此也会停止其他 WSL 发行版和 Docker 的 WSL 后端；使用 `--distro-only` 可只终止 easySVA。
 
+双击 `启动easySVA.bat` 时会在 ZLMediaKit 启动后自动恢复数据库中状态为 `RUNNING` 的直连设备代理，避免 WSL 完全关闭后出现“设备仍显示运行、预览却没有画面”。示例与候选视频源见 [`deploy/sample-streams.tsv`](deploy/sample-streams.tsv)；验收演示优先使用本地 RTSP 模拟源，公网 HLS 源可能受网络、代理和源站可用性影响。
+
 如需使用仓库镜像或其他GitHub所有者，可在安装前设置 `EASYSVA_REPO_BASE`；如依赖包不在 `/opt`，可设置 `EASYSVA_LIB_ARCHIVE`。
 
 #### 使用说明

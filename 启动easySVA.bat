@@ -5,19 +5,23 @@ title easySVA Start
 set "DISTRO=Ubuntu-22.04-easySVA"
 set "URL=http://localhost/"
 
-echo [1/4] Starting the easySVA WSL environment...
+echo [1/5] Starting the easySVA WSL environment...
 wsl.exe -d "%DISTRO%" -u root -- true >nul 2>&1
 if errorlevel 1 goto :wsl_error
 
-echo [2/4] Keeping WSL alive in the background...
+echo [2/5] Keeping WSL alive in the background...
 powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0deploy\scripts\start-wsl-keepalive.ps1" -Distro "%DISTRO%" >nul 2>&1
 if errorlevel 1 goto :keepalive_error
 
-echo [3/4] Starting database, backend, media and analyzer services...
+echo [3/5] Starting database, backend, media and analyzer services...
 wsl.exe -d "%DISTRO%" -u root -- systemctl start mariadb redis-server nginx easysva-backend easysva-media easysva-analyzer easysva-rtsp-simulator >nul 2>&1
 if errorlevel 1 goto :service_error
 
-echo [4/4] Waiting for the backend API...
+echo [4/5] Restoring running camera streams...
+wsl.exe -d "%DISTRO%" -u root -- systemctl restart easysva-stream-restore >nul 2>&1
+if errorlevel 1 goto :stream_restore_error
+
+echo [5/5] Waiting for the backend API...
 set /a WAIT_COUNT=0
 
 :wait_backend
@@ -46,6 +50,13 @@ exit /b 1
 echo.
 echo ERROR: One or more systemd services failed to start.
 echo Run this in WSL for details: systemctl status easysva-backend
+pause
+exit /b 1
+
+:stream_restore_error
+echo.
+echo ERROR: Failed to restore one or more running camera streams.
+echo Run this in WSL for details: journalctl -u easysva-stream-restore -n 50
 pause
 exit /b 1
 

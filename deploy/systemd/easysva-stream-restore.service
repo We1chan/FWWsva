@@ -1,0 +1,12 @@
+[Unit]
+Description=Restore easySVA direct stream proxies
+After=mariadb.service easysva-media.service easysva-rtsp-simulator.service
+Wants=mariadb.service easysva-media.service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/SVA/server/easysva-restore-streams.sh
+TimeoutStartSec=180
+
+[Install]
+WantedBy=multi-user.target

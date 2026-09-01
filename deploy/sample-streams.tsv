@@ -1,0 +1,7 @@
+# name<TAB>type<TAB>url<TAB>verified_at<TAB>note
+CCTV-1	HLS	http://tv.byr.cn/liverespath/b455c7a019d404d571655c457e0ee8a9440a7802/d3d514bc72-0-0-9b6b08b33b2c303d6e6b0b9ee36e4e9a/index.m3u8	2026-09-01	Windows HTTP 200；当前 WSL/ZLM 环境受代理影响，实际拉流失败
+CCTV-2	HLS	http://tv.byr.cn/liverespath/6b13fe5368d391761312a985ace065c0ecad2f5e/965ab9745c-0-0-2acfb9c2cc88329b4d9b1df05bf74550/index.m3u8	2026-09-01	Windows HTTP 200；当前 WSL/ZLM 环境受代理影响，实际拉流失败
+CCTV-3	HLS	http://tv.byr.cn/liverespath/f76f9947c68be18d7a456e25aa59a08c5747e6a5/b517de9fbc-0-0-0dd6d8166212510f7494a7acb52d9ec0/index.m3u8	2026-09-01	Windows HTTP 200；当前 WSL/ZLM 环境受代理影响，实际拉流失败
+CCTV-4	HLS	http://tv.byr.cn/liverespath/c70d81eefb04fef7777c2a5aab4ddc9459ce4246/645991f9fa-0-0-495b10aee2a74997a86bd020a0a8cedf/index.m3u8	2026-09-01	Windows HTTP 200；当前 WSL/ZLM 环境受代理影响，实际拉流失败
+CCTV-5 体育	HLS	http://tv.byr.cn/liverespath/3f76badfb3a23d95f26ff573a93902bbdb8b8e98/684dffabd7-0-0-2128bc6ee164ef7658511da8325c9b8d/index.m3u8	2026-09-01	Windows HTTP 200；当前 WSL/ZLM 环境受代理影响，实际拉流失败
+本地模拟摄像头	RTSP	rtsp://127.0.0.1:9994/live/mock-camera	2026-09-01	验收推荐；由 test1.mp4 循环推流，WSL 内已验证
