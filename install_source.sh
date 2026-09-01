@@ -2,12 +2,35 @@
 #本脚本用于在Ubuntu 22.04系统上安装easySVA的源码编译环境，包括依赖包、FFmpeg、OpenCV、MediaServer、前后端等组件。
 #请确保easySVA-lib.zip位于/opt目录下，并以root用户执行。
 
-set -o pipefail
+set -e -o pipefail
 
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 LIB_ARCHIVE="${EASYSVA_LIB_ARCHIVE:-/opt/easySVA-lib.zip}"
 REPO_BASE="${EASYSVA_REPO_BASE:-https://github.com/We1chan}"
+BACKEND_REF="${EASYSVA_BACKEND_REF:-v1.2.8}"
+WVP_REPO="${EASYSVA_WVP_REPO:-https://github.com/648540858/wvp-GB28181-pro.git}"
+WVP_REF="${EASYSVA_WVP_REF:-fb45787da01cb4f33a0b1dfaa613becf67391c17}"
+WVP_DB_NAME="${EASYSVA_WVP_DB_NAME:-wvp}"
+WVP_DB_USERNAME="${EASYSVA_WVP_DB_USERNAME:-wvp}"
+WVP_DB_PASSWORD="${EASYSVA_WVP_DB_PASSWORD:-easySVA.GB28181}"
+GB28181_SIP_PASSWORD="${EASYSVA_GB28181_SIP_PASSWORD:-admin123}"
+GB28181_ZLM_SECRET="${EASYSVA_GB28181_ZLM_SECRET:-easySVA.GB28181.ZLM}"
+GB28181_HOST_IP="${EASYSVA_GB28181_HOST_IP:-}"
 SQL_FILE="$SCRIPT_DIR/data_20250520.sql"
+
+if [[ ! "$WVP_DB_NAME" =~ ^[A-Za-z0-9_]+$ ]] ||
+   [[ ! "$WVP_DB_USERNAME" =~ ^[A-Za-z0-9_]+$ ]]; then
+    echo "WVP数据库名和用户名只能包含字母、数字、下划线。" >&2
+    exit 1
+fi
+
+if [[ ! "$WVP_DB_PASSWORD" =~ ^[A-Za-z0-9._@%+=:-]+$ ]] ||
+   [[ ! "$GB28181_SIP_PASSWORD" =~ ^[A-Za-z0-9._@%+=:-]+$ ]] ||
+   [[ ! "$GB28181_ZLM_SECRET" =~ ^[A-Za-z0-9._@%+=:-]+$ ]]; then
+    echo "WVP数据库密码、SIP密码和ZLM密钥包含不支持的字符。" >&2
+    echo "仅支持字母、数字和 . _ @ % + = : -" >&2
+    exit 1
+fi
 
 if [[ $EUID -ne 0 ]]; then
     echo "请先执行 sudo -s 切换为root用户，再运行本脚本。"
@@ -46,6 +69,8 @@ echo "                 "
 echo "欢迎试用easySVA的源码编译脚本"
 echo "推荐在Ubuntu 22.04系统上安装"
 echo "源码仓库: $REPO_BASE"
+echo "后端版本: $BACKEND_REF"
+echo "WVP版本: $WVP_REF"
 echo "依赖包: $LIB_ARCHIVE"
 read -p "请sudo -s切换为root用户后再进行安装，输入y/Y继续执行脚本: " answer
 if [[ "$answer" != "y" && "$answer" != "Y" ]]; then
@@ -381,7 +406,7 @@ apt install mariadb-server -y
 /etc/init.d/mariadb start
 systemctl enable mariadb
 
-apt install openjdk-17-jdk -y
+apt install openjdk-17-jdk openjdk-21-jdk -y
 
 cd /opt/easySVA-lib
 # 安装 Maven
@@ -394,15 +419,49 @@ DROP DATABASE IF EXISTS test;
 DELETE FROM mysql.db WHERE Db='test' OR Db='test_%';
 FLUSH PRIVILEGES;
 create database easySVA default character set utf8mb4 collate utf8mb4_unicode_ci;
+create database ${WVP_DB_NAME} default character set utf8mb4 collate utf8mb4_unicode_ci;
+CREATE USER IF NOT EXISTS '${WVP_DB_USERNAME}'@'localhost' IDENTIFIED BY '${WVP_DB_PASSWORD}';
+CREATE USER IF NOT EXISTS '${WVP_DB_USERNAME}'@'127.0.0.1' IDENTIFIED BY '${WVP_DB_PASSWORD}';
+ALTER USER '${WVP_DB_USERNAME}'@'localhost' IDENTIFIED BY '${WVP_DB_PASSWORD}';
+ALTER USER '${WVP_DB_USERNAME}'@'127.0.0.1' IDENTIFIED BY '${WVP_DB_PASSWORD}';
+GRANT ALL PRIVILEGES ON ${WVP_DB_NAME}.* TO '${WVP_DB_USERNAME}'@'localhost';
+GRANT ALL PRIVILEGES ON ${WVP_DB_NAME}.* TO '${WVP_DB_USERNAME}'@'127.0.0.1';
+FLUSH PRIVILEGES;
 EOF
 
 mysql -uroot -peasySVA.EZ easySVA < "$SQL_FILE"
 
 
 
-git clone --depth=1 "$REPO_BASE/SVA-backend.git" /opt/SVA/SVA-backend
+git clone --depth=1 --branch "$BACKEND_REF" "$REPO_BASE/SVA-backend.git" /opt/SVA/SVA-backend
 cd /opt/SVA/SVA-backend
-mvn clean package -Dmaven.test.skip=true
+JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 \
+PATH="/usr/lib/jvm/java-17-openjdk-amd64/bin:$PATH" \
+    mvn clean package -Dmaven.test.skip=true
+
+echo "编译GB28181信令服务WVP"
+mkdir -p /opt/SVA/wvp-GB28181-pro
+cd /opt/SVA/wvp-GB28181-pro
+git init
+git remote add origin "$WVP_REPO"
+git fetch --depth=1 origin "$WVP_REF"
+git checkout --detach FETCH_HEAD
+
+JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 \
+PATH="/usr/lib/jvm/java-21-openjdk-amd64/bin:$PATH" \
+    mvn clean package -DskipTests
+
+WVP_SCHEMA="/opt/SVA/wvp-GB28181-pro/数据库/2.7.4/初始化-mysql-2.7.4.sql"
+if [[ ! -f "$WVP_SCHEMA" ]]; then
+    echo "未找到WVP数据库初始化文件: $WVP_SCHEMA" >&2
+    exit 1
+fi
+
+mysql -uroot -peasySVA.EZ "$WVP_DB_NAME" < "$WVP_SCHEMA"
+mysql -uroot -peasySVA.EZ easySVA < \
+    /opt/SVA/SVA-backend/deploy/gb28181/sql/001_extend_h_device.sql
+mysql -uroot -peasySVA.EZ easySVA < \
+    /opt/SVA/SVA-backend/deploy/gb28181/sql/002_add_gb_stream_url.sql
 
 ############################安装web#######################################
 apt install -y nginx-full
@@ -490,6 +549,45 @@ if [[ "$deploy_choice" =~ ^[Yy]$ ]]; then
     mkdir -p /opt/SVA/mediaServer
     cp /opt/SVA/SVA-mediaServer/release/linux/Release/* /opt/SVA/mediaServer/ -r
 
+    mkdir -p /opt/SVA/gb28181 /opt/SVA/wvp /opt/SVA/logs
+    mkdir -p /var/www/SVA-web/upload/gb28181
+    WVP_JAR="$(find /opt/SVA/wvp-GB28181-pro/target -maxdepth 1 -type f \
+        -name 'wvp-pro-*.jar' ! -name '*.original' -print -quit)"
+    if [[ -z "$WVP_JAR" ]]; then
+        echo "未找到WVP编译产物。" >&2
+        exit 1
+    fi
+    install -m 0644 "$WVP_JAR" /opt/SVA/wvp/wvp-pro.jar
+    install -m 0644 /opt/SVA/SVA-backend/deploy/gb28181/config/wvp.local.yml \
+        /opt/SVA/gb28181/wvp.yml
+    install -m 0644 /opt/SVA/SVA-backend/deploy/gb28181/config/zlm-gb.local.ini \
+        /opt/SVA/gb28181/zlm-gb.ini
+    sed -i 's#/opt/easySVA/wvp/jwk.json#/opt/SVA/wvp/jwk.json#g' \
+        /opt/SVA/gb28181/wvp.yml
+    sed -i 's#/opt/easySVA/logs#/opt/SVA/logs#g' \
+        /opt/SVA/gb28181/zlm-gb.ini
+    sed -i "s/easySVA\.GB28181\.ZLM/$GB28181_ZLM_SECRET/g" \
+        /opt/SVA/gb28181/zlm-gb.ini
+
+    mkdir -p /etc/easySVA
+    {
+        printf 'WVP_DB_USERNAME=%q\n' "$WVP_DB_USERNAME"
+        printf 'WVP_DB_PASSWORD=%q\n' "$WVP_DB_PASSWORD"
+        printf 'GB28181_SIP_PASSWORD=%q\n' "$GB28181_SIP_PASSWORD"
+        printf 'GB28181_ZLM_SECRET=%q\n' "$GB28181_ZLM_SECRET"
+        printf 'SPRING_DATASOURCE_URL=%q\n' \
+            "jdbc:mysql://127.0.0.1:3306/${WVP_DB_NAME}?useUnicode=true&characterEncoding=UTF8&rewriteBatchedStatements=true&serverTimezone=Asia/Shanghai&useSSL=false&allowMultiQueries=true&allowPublicKeyRetrieval=true"
+        if [[ -n "$GB28181_HOST_IP" ]]; then
+            printf 'GB28181_HOST_IP=%q\n' "$GB28181_HOST_IP"
+        fi
+    } > /etc/easySVA/gb28181.env
+    chmod 0600 /etc/easySVA/gb28181.env
+
+    install -m 0755 "$SCRIPT_DIR/deploy/scripts/easysva-wvp-launcher.sh" \
+        /opt/SVA/wvp/easysva-wvp-launcher.sh
+    install -m 0755 "$SCRIPT_DIR/deploy/scripts/easysva-gb-health.sh" \
+        /usr/local/bin/easysva-gb-health
+
     mkdir -p /opt/SVA/server
     install -m 0755 /opt/SVA/SVA-server/build-cpu/Analyzer /opt/SVA/server/Analyzer.cpu
     cp /opt/SVA/server/Analyzer.cpu /opt/SVA/server/Analyzer
@@ -510,13 +608,29 @@ if [[ "$deploy_choice" =~ ^[Yy]$ ]]; then
         /etc/systemd/system/easysva-analyzer.service
     install -m 0644 "$SCRIPT_DIR/deploy/systemd/easysva-stream-restore.service" \
         /etc/systemd/system/easysva-stream-restore.service
+    install -m 0644 "$SCRIPT_DIR/deploy/systemd/easysva-gb-media.service" \
+        /etc/systemd/system/easysva-gb-media.service
+    install -m 0644 "$SCRIPT_DIR/deploy/systemd/easysva-wvp.service" \
+        /etc/systemd/system/easysva-wvp.service
+
+    if command -v ufw >/dev/null 2>&1 && ufw status | grep -q '^Status: active'; then
+        ufw allow 5060/tcp
+        ufw allow 5060/udp
+        ufw allow 9996/tcp
+        ufw allow 9997/tcp
+        ufw allow 10000/udp
+        ufw allow 40002:45000/udp
+        ufw allow 50000:55000/udp
+    fi
 
     systemctl daemon-reload
     systemctl enable easysva-backend easysva-media easysva-analyzer easysva-stream-restore \
-        nginx mariadb redis-server
+        easysva-gb-media easysva-wvp nginx mariadb redis-server
 
 fi
 
 echo "安装完成，请重启系统，重启后访问http://ip/，用户名admin，密码admin123"
 echo "zlm_server和sva_server的默认地址是127.0.0.1,如果想对外提供服务请修改为服务器的公网IP地址"
 echo "数据库的用户名和密码是root/easySVA.EZ"
+echo "GB28181参数保存在/etc/easySVA/gb28181.env（仅root可读）"
+echo "重启后可执行 easysva-gb-health 检查GB28181服务"

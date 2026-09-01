@@ -6,7 +6,7 @@ Requires=mariadb.service redis-server.service
 [Service]
 Type=simple
 WorkingDirectory=/opt/SVA/backend
-ExecStart=/usr/bin/java -jar /opt/SVA/backend/backend.jar --ruoyi.profile=/var/www/SVA-web/upload
+ExecStart=/usr/lib/jvm/java-17-openjdk-amd64/bin/java -jar /opt/SVA/backend/backend.jar --ruoyi.profile=/var/www/SVA-web/upload
 Restart=on-failure
 RestartSec=5
 
