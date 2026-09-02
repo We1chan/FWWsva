@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# 模块：流媒体协议组 / WVP 生产启动器。
+# 读取 root-only 环境文件、校验依赖并等待数据库/Redis/GB ZLMediaKit 就绪。
 
 set -euo pipefail
 
@@ -16,6 +18,7 @@ fi
 source "$env_file"
 
 if [[ -z "${GB28181_HOST_IP:-}" ]]; then
+    # SIP 与 SDP 必须公布相机可达地址；多网卡机器可在环境文件中显式覆盖。
     GB28181_HOST_IP="$(ip -4 route get 1.1.1.1 2>/dev/null |
         awk '{for (i = 1; i <= NF; i++) if ($i == "src") {print $(i + 1); exit}}')"
 fi

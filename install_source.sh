@@ -1,6 +1,8 @@
 #!/bin/bash
-#本脚本用于在Ubuntu 22.04系统上安装easySVA的源码编译环境，包括依赖包、FFmpeg、OpenCV、MediaServer、前后端等组件。
-#请确保easySVA-lib.zip位于/opt目录下，并以root用户执行。
+# 模块：easySVA 源码部署入口（含流媒体协议组 GB28181 集成）。
+# 职责：在 Ubuntu 22.04 安装 CPU/GPU 分析器、前后端、原媒体服务，以及旁路的 WVP/GB28181 ZLMediaKit。
+# 边界：CPU/GPU 只决定分析器与编解码依赖；SIP、设备同步和浏览器预览流程两种模式完全一致。
+# 前置：easySVA-lib.zip 位于 /opt（或由 EASYSVA_LIB_ARCHIVE 指定），并以 root 用户执行。
 
 set -e -o pipefail
 
@@ -90,7 +92,7 @@ cd /opt
 unzip "$LIB_ARCHIVE"
 cd easySVA-lib
 
-#让用户选择编译gpu版本还是cpu版本
+# CPU/GPU 选择只影响分析器及本地编解码加速，GB28181 信令和媒体接入不依赖该选择。
 echo "如果你的系统有NVIDIA GPU并且显卡驱动 ≥ 580.xx，建议选择GPU版本，否则选择CPU版本。"
 read -p "G:编译GPU版本; C:编译CPU版本:" gpu_answer 
 #如果输入的不是G/g或者C/c，提示错误并退出
@@ -439,6 +441,7 @@ JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 \
 PATH="/usr/lib/jvm/java-17-openjdk-amd64/bin:$PATH" \
     mvn clean package -Dmaven.test.skip=true
 
+# WVP 固定到已验收提交，避免外部依赖升级改变 API 响应结构或 SIP 行为。
 echo "编译GB28181信令服务WVP"
 mkdir -p /opt/SVA/wvp-GB28181-pro
 cd /opt/SVA/wvp-GB28181-pro
@@ -546,6 +549,7 @@ if [[ "$deploy_choice" =~ ^[Yy]$ ]]; then
     mkdir -p /opt/SVA/backend
     cp /opt/SVA/SVA-backend/ruoyi-admin/target/ruoyi-admin.jar /opt/SVA/backend/backend.jar
 
+    # GB28181 复用同一 ZLMediaKit 可执行文件，但采用独立配置、端口和 systemd 服务。
     mkdir -p /opt/SVA/mediaServer
     cp /opt/SVA/SVA-mediaServer/release/linux/Release/* /opt/SVA/mediaServer/ -r
 
