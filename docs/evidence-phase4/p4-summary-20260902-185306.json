@@ -1,0 +1,35 @@
+{
+  "ts": "20260902-185306",
+  "shots": [
+    {
+      "name": "p4-01-list-all",
+      "file": "p4-01-list-all-20260902-185306.png",
+      "note": "报警列表全列表 rows=2 含报警类型标签列/设备类型列",
+      "url": "http://localhost/#/warning/warning"
+    },
+    {
+      "name": "p4-02-filter-sleep-duty",
+      "file": "p4-02-filter-sleep-duty-20260902-185306.png",
+      "note": "睡岗快捷筛选后 rows=2（报警类型标签+设备类型列）",
+      "url": "http://localhost/#/warning/warning"
+    },
+    {
+      "name": "p4-03-detail-gb28181",
+      "file": "p4-03-detail-gb28181-20260902-185306.png",
+      "note": "GB28181睡岗详情 设备类型=设备类型GB28181 截图加载=true",
+      "url": "http://localhost/#/warning/warning"
+    },
+    {
+      "name": "p4-04-detail-rtsp-no-snapshot",
+      "file": "p4-04-detail-rtsp-no-snapshot-20260902-185306.png",
+      "note": "RTSP睡岗详情 设备类型=设备类型RTSP 暂无抓拍=true",
+      "url": "http://localhost/#/warning/warning"
+    },
+    {
+      "name": "p4-05-clear-shortcut",
+      "file": "p4-05-clear-shortcut-20260902-185306.png",
+      "note": "清除快捷筛选后 rows=2（期望全列表 ≥10）",
+      "url": "http://localhost/#/warning/warning"
+    }
+  ]
+}
