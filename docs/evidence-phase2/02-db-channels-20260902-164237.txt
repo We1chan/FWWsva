@@ -1,0 +1,3 @@
+device_id	channel_id	channel_name	zlm_server_id	vhost	app	stream	catalog_online	media_online
+34020000001320000001	34020000001310000001	主井口-国标01	1	__defaultVhost__	live	dev_mock_camera_001	1	0
+34020000001320000001	34020000001310000002	副井口-国标02(幽灵流)	1	__defaultVhost__	live	gb-ghost-cam-0002	1	0

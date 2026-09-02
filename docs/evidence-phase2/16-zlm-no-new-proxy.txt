@@ -1,0 +1,2 @@
+[check 2026-09-02 16:43:xx] GB28181 start/stop 后 ZLM 媒体清单
+"stream" : "dev_mock_camera_001"  (唯一流，无新增代理流 -> GB 启停未调用 addStreamProxy)
