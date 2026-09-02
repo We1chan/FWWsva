@@ -1,0 +1,13 @@
+[flip 2026-09-02 16:45:52] 强制 cam-01 离线
+ape_id	is_online	monitor_status
+gb-34020000001320000001-34020000001310000001	2	STOPPED
+channel_id	media_online	last_media_seen_at
+34020000001310000001	0	NULL
+[wait 2026-09-02 16:45:52] 等待 80 秒（@Scheduled 60s 周期）...
+[check 2026-09-02 16:47:12] 期望被定时任务自动恢复
+ape_id	is_online	monitor_status
+gb-34020000001320000001-34020000001310000001	1	STOPPED
+channel_id	media_online	last_media_seen_at
+34020000001310000001	1	2026-09-02 16:46:32
+[done]
+

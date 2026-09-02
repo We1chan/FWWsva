@@ -1,0 +1,3 @@
+channel_id	media_online	last_media_seen_at
+34020000001310000001	1	2026-09-02 16:42:39
+34020000001310000002	0	NULL

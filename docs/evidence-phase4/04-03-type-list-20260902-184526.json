@@ -1,0 +1,1 @@
+{"total":1,"rows":[{"t_id":41,"device_id":"SYSTEM","device_name":"系统","alarm_type":"SLEEP_DUTY","alarm_type_name":"睡岗告警","alarm_level":null,"alarm_level_name":null,"org_index":null,"org_name":null,"create_time":"2026-09-02 16:19:38","update_time":"2026-09-02 16:19:38","create_user":null,"update_user":null,"is_handle":0}],"code":200,"msg":"查询成功"}

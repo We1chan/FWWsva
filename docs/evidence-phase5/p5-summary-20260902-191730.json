@@ -1,0 +1,90 @@
+{
+  "ts": "20260902-191730",
+  "shots": [
+    {
+      "name": "p5-01-alarm-list-all",
+      "file": "p5-01-alarm-list-all-20260902-191730.png",
+      "note": "报警列表全量 rows=5 ws事件最新置顶（睡岗/停留告警设备类型列）",
+      "url": "http://localhost/#/warning/warning"
+    },
+    {
+      "name": "p5-02-sleep-filter",
+      "file": "p5-02-sleep-filter-20260902-191730.png",
+      "note": "睡岗快捷筛选 rows=4（期望含 RTSP 与 GB28181 两设备类型）",
+      "url": "http://localhost/#/warning/warning"
+    },
+    {
+      "name": "p5-03-sleep-detail-1st",
+      "file": "p5-03-sleep-detail-1st-20260902-191730.png",
+      "note": "详情1 设备类型=设备类型GB28181 截图加载=true",
+      "url": "http://localhost/#/warning/warning"
+    },
+    {
+      "name": "p5-04-sleep-detail-2nd",
+      "file": "p5-04-sleep-detail-2nd-20260902-191730.png",
+      "note": "详情2 设备类型=设备类型RTSP 截图加载=true",
+      "url": "http://localhost/#/warning/warning"
+    },
+    {
+      "name": "p5-05-alarm-list-dwell-regression",
+      "file": "p5-05-alarm-list-dwell-regression-20260902-191730.png",
+      "note": "清除后全量 rows=5 原YOLO停留告警在列=true",
+      "url": "http://localhost/#/warning/warning"
+    },
+    {
+      "name": "p5-06-dwell-detail",
+      "file": "p5-06-dwell-detail-20260902-191730.png",
+      "note": "停留告警详情（YOLO 回归，截图或占位）",
+      "url": "http://localhost/#/warning/warning"
+    },
+    {
+      "name": "p5-07-deploy-list",
+      "file": "p5-07-deploy-list-20260902-191730.png",
+      "note": "布控列表 rows=3（P5-RTSP/GB28181 睡岗布控 RUNNING + 原YOLO任务）",
+      "url": "http://localhost/#/deployment/index"
+    },
+    {
+      "name": "p5-08-lixian-gb-offline",
+      "file": "p5-08-lixian-gb-offline-20260902-191730.png",
+      "note": "离线设备页 rows=1 GB幽灵流离线在列=true",
+      "url": "http://localhost/#/device/lixian"
+    }
+  ],
+  "menus": [
+    "首页",
+    "系统管理",
+    "用户管理",
+    "角色管理",
+    "菜单管理",
+    "组织管理",
+    "系统参数",
+    "授权管理",
+    "系统监控",
+    "在线用户",
+    "定时任务",
+    "数据监控",
+    "服务监控",
+    "缓存监控",
+    "缓存列表",
+    "媒体服务器",
+    "算法服务器",
+    "系统工具",
+    "表单构建",
+    "代码生成",
+    "系统接口",
+    "报警管理",
+    "报警列表",
+    "误报",
+    "设备管理",
+    "设备管理",
+    "离线设备",
+    "实时监控",
+    "报警类型",
+    "报警类型",
+    "测试数据",
+    "测试数据",
+    "布控管理",
+    "布控列表",
+    "布控管理"
+  ]
+}

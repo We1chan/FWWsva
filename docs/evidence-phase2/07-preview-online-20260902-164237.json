@@ -1,0 +1,1 @@
+{"msg":"操作成功","code":200,"data":{"directSourceUrl":null,"port":null,"supportedMonitorStatuses":["RUNNING","STOPPED","STARTING","STOPPING","ERROR"],"name":"主井口-国标01","apeId":"gb-34020000001320000001-34020000001310000001","monitorStatus":"STOPPED","ipAddr":null,"streamSourceType":"PLATFORM","playUrl":"ws://127.0.0.1:9992/live/dev_mock_camera_001.live.flv"}}
