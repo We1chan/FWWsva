@@ -1,0 +1,59 @@
+{
+  "ts": "20260902-181246",
+  "shots": [
+    {
+      "name": "p3-10-list-all",
+      "file": "p3-10-list-all-20260902-181246.png",
+      "note": "设备管理全列表 rows=4",
+      "url": "http://localhost/#/device/manage"
+    },
+    {
+      "name": "p3-11-filter-gb28181",
+      "file": "p3-11-filter-gb28181-20260902-181246.png",
+      "note": "接入类型=GB28181 筛选后 rows=2",
+      "url": "http://localhost/#/device/manage"
+    },
+    {
+      "name": "p3-12-sync-gb",
+      "file": "p3-12-sync-gb-20260902-181246.png",
+      "note": "同步国标设备 toast=\"国标目录对账完成，无变更：新增 0，更新 0，离线 0。等待平台推送目录或已有目录同步。\"",
+      "url": "http://localhost/#/device/manage"
+    },
+    {
+      "name": "p3-13-edit-gb28181",
+      "file": "p3-13-edit-gb28181-20260902-181246.png",
+      "note": "GB28181 修改对话框 found=true 国标信息=true 无视频流输入=true",
+      "url": "http://localhost/#/device/manage"
+    },
+    {
+      "name": "p3-14-edit-rtsp",
+      "file": "p3-14-edit-rtsp-20260902-181246.png",
+      "note": "RTSP 修改对话框 有视频流输入=true",
+      "url": "http://localhost/#/device/manage"
+    },
+    {
+      "name": "p3-15-add-rtsp",
+      "file": "p3-15-add-rtsp-20260902-181246.png",
+      "note": "新增对话框 接入类型=RTSP 有视频流=true 无国标=true",
+      "url": "http://localhost/#/device/manage"
+    },
+    {
+      "name": "p3-16-realtime",
+      "file": "p3-16-realtime-20260902-181246.png",
+      "note": "实时监控页",
+      "url": "http://localhost/#/device/realtime"
+    },
+    {
+      "name": "p3-17-lixian",
+      "file": "p3-17-lixian-20260902-181246.png",
+      "note": "离线设备页",
+      "url": "http://localhost/#/device/lixian"
+    },
+    {
+      "name": "p3-18-preview-gb28181",
+      "file": "p3-18-preview-gb28181-20260902-181246.png",
+      "note": "GB28181 预览弹窗 dialog=false player=true",
+      "url": "http://localhost/#/device/manage"
+    }
+  ]
+}
