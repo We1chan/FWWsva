@@ -1,3 +1,5 @@
+# 模块：流媒体协议组 / GB28181 信令服务。
+# 数据库、Redis 与国标媒体服务就绪后启动 WVP。
 [Unit]
 Description=easySVA GB28181 signaling service (WVP)
 Wants=network-online.target

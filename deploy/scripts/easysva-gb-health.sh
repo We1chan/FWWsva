@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# 模块：流媒体协议组 / 部署后健康检查。
+# 检查后端、WVP、SIP 与国标专用 ZLMediaKit 的最小可用端点。
 
 set -u
 

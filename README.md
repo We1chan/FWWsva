@@ -12,6 +12,9 @@ easySVA（easy Surveillance Video Analytics）是一款面向中小企业的轻�
 - [SVA-mediaServer](https://github.com/We1chan/SVA-mediaServer)  流媒体服务（基于ZLMediaKit）
 - [wvp-GB28181-pro](https://github.com/648540858/wvp-GB28181-pro)  GB28181 SIP信令服务
 
+流媒体协议组的跨仓库职责、数据流和维护约束见
+[GB28181 代码地图](docs/gb28181-code-map.md)。
+
 
 #### 安装教程
 ##### 环境要求

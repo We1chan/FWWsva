@@ -1,3 +1,5 @@
+# 模块：流媒体协议组 / GB28181 独立媒体服务。
+# 与原媒体服务共享可执行文件但隔离配置和端口。
 [Unit]
 Description=easySVA GB28181 media server (ZLMediaKit)
 Wants=network-online.target
