@@ -1,0 +1,3 @@
+controlBVwDyFaFSi7WyW	P5-GB28181-睡岗布控	gb-34020000001320000001-34020000001310000001	RUNNING	rtsp://127.0.0.1:9994/live/dev_mock_camera_001	2026-09-02 19:09:33
+controlDrwhlzWGKy6DaS	P5-RTSP-睡岗布控	dev_mock_camera_001	RUNNING	rtsp://127.0.0.1:9994/live/dev_mock_camera_001	2026-09-02 19:07:06
+task_yolo_dwell_001	验收点1-YOLO模拟检测	dev_mock_camera_001	RUNNING	rtsp://127.0.0.1:9994/live/dev_mock_camera_001	2026-09-01 16:50:06
