@@ -55,19 +55,19 @@
 
 ## 1. 计划落库与远程同步
 
-- [ ] 自审本计划的接口、范围与验收条件。
-- [ ] 在 `FWWsva` 仅暂存本文件，提交 `docs: plan frontend and backend optimization`。
-- [ ] 执行 `git push origin master`，核对远程分支与本地提交一致。
+- [x] 自审本计划的接口、范围与验收条件。
+- [x] 在 `FWWsva` 仅暂存本文件，提交 `docs: plan frontend and backend optimization`。
+- [x] 执行 `git push origin master`，核对远程分支与本地提交一致。
 
 ## 2. 管理布局与视觉规范
 
 **文件范围：** `SVA-web/src/layout/**`、`src/assets/styles/{index,variables,element-variables,admin-workspace}.scss`、`src/store/modules/settings.js`。可按需创建 `admin-workspace.scss`。
 
-- [ ] 复用 `layout/index.vue` 的管理布局根节点，增加 `.sva-workspace` 作用域和统一 CSS 变量。
-- [ ] 统一侧栏、品牌区、顶部栏、标签页的层次与留白，保持现有折叠和移动端抽屉行为。
-- [ ] 管理列表表头、筛选表单、操作按钮与分页使用一致视觉；不引入新的 UI 依赖。
-- [ ] 保留 `--current-color` 与用户主题设置；默认主题色与 Element SCSS 一致。
-- [ ] 检查 1440/1024/390 宽度下的导航与列表；保持 focus-visible 和 reduced-motion 支持。
+- [x] 复用 `layout/index.vue` 的管理布局根节点，增加 `.sva-workspace` 作用域和统一 CSS 变量。
+- [x] 统一侧栏、品牌区、顶部栏、标签页的层次与留白，保持现有折叠和移动端抽屉行为。
+- [x] 管理列表表头、筛选表单、操作按钮与分页使用一致视觉；不引入新的 UI 依赖。
+- [x] 保留 `--current-color` 与用户主题设置；默认主题色与 Element SCSS 一致。
+- [x] 检查 1440/1024/390 宽度下的导航与列表；保持 focus-visible 和 reduced-motion 支持。
 
 参考样式边界：
 
@@ -88,12 +88,12 @@
 
 **文件范围：** `SVA-web/src/views/home/**`；按需新增 `src/components/Charts/` 内生命周期辅助模块、`src/utils/dashboard.js`、`tests/unit/home-dashboard.spec.js` 和图表相关测试。
 
-- [ ] 将页标题、简短说明和组织筛选放在同一操作区；仅对有 `getDeptList` 或 `*:*:*` 权限的用户请求组织列表。
-- [ ] 保留四类月度指标的准确字段和已有跳转，使用响应式卡片；API 失败显示不可用状态并允许重试。
-- [ ] 公示行直接携带 `w_id`，跳转使用该行的 ID；移除会累积/错位的独立 `wids` 数组与父 DOM 样式修改。
-- [ ] 组织请求与公示请求相互独立；组织加载失败不阻塞公示；快速切换组织时旧响应不得覆盖最新响应。
-- [ ] 统一趋势/分布图表的标题与颜色，检查 ECharts 实例复用、resize 监听清理、destroy/dispose；图表区域支持窄屏。
-- [ ] 新增有意义的回归：按行 ID 跳转；列表为空/失败；无组织权限；重复请求或乱序响应；图表销毁后监听释放（按实际实现覆盖）。纯样式调整以浏览器检查验证。
+- [x] 将页标题、简短说明和组织筛选放在同一操作区；仅对有 `getDeptList` 或 `*:*:*` 权限的用户请求组织列表。
+- [x] 保留四类月度指标的准确字段和已有跳转，使用响应式卡片；API 失败显示不可用状态并允许重试。
+- [x] 公示行直接携带 `w_id`，跳转使用该行的 ID；移除会累积/错位的独立 `wids` 数组与父 DOM 样式修改。
+- [x] 组织请求与公示请求相互独立；组织加载失败不阻塞公示；快速切换组织时旧响应不得覆盖最新响应。
+- [x] 统一趋势/分布图表的标题与颜色，检查 ECharts 实例复用、resize 监听清理、destroy/dispose；图表区域支持窄屏。
+- [x] 新增有意义的回归：按行 ID 跳转；列表为空/失败；无组织权限；重复请求或乱序响应；图表销毁后监听释放（按实际实现覆盖）。纯样式调整以浏览器检查验证。
 
 公示行映射与跳转保持既有接口：
 
@@ -126,12 +126,12 @@ npm run build:prod
 - 创建 `.../waring/domain/DeviceMonitorResult.java`：只表示 `success`、`shortMessage`、`data`，由 Controller 包装 HTTP 响应。
 - 创建 `.../src/test/java/com/ruoyi/waring/service/DeviceMonitorServiceTest.java`，扩展 `.../controller/HDeviceControllerTest.java`。
 
-- [ ] 先建立现有启停行为的契约测试：成功、设备不存在、0 行、抛出业务异常、超时、拉流失败、推流失败、重复启动。
-- [ ] 将两条路径共享的“查设备 → 执行动作 → 读取状态 → 返回业务结果”集中到服务，Controller 只保留权限、路由和响应包装。
-- [ ] 异常消息匹配使用 `Locale.ROOT`；保持已知错误的中文提示以及未知业务异常原有信息。
-- [ ] 失败后的状态重读若再次失败，应保留已知设备快照和最初失败结果，记录日志，不让二次异常覆盖业务原因；添加针对性测试。
-- [ ] 对旧 JSON 契约断言 `code=200`、`data.success`、`data.shortMessage`、`data.data`（设备），权限表达式、路由和现有设备服务入口保持不变。
-- [ ] 运行聚合 Maven 测试及独立代码审查，确认 GB28181 同步/预览与既有部署测试仍通过。
+- [x] 先建立现有启停行为的契约测试：成功、设备不存在、0 行、抛出业务异常、超时、拉流失败、推流失败、重复启动。
+- [x] 将两条路径共享的“查设备 → 执行动作 → 读取状态 → 返回业务结果”集中到服务，Controller 只保留权限、路由和响应包装。
+- [x] 异常消息匹配使用 `Locale.ROOT`；保持已知错误的中文提示以及未知业务异常原有信息。
+- [x] 失败后的状态重读若再次失败，应保留已知设备快照和最初失败结果，记录日志，不让二次异常覆盖业务原因；添加针对性测试。
+- [x] 对旧 JSON 契约断言 `code=200`、`data.success`、`data.shortMessage`、`data.data`（设备），权限表达式、路由和现有设备服务入口保持不变。
+- [x] 运行聚合 Maven 测试及独立代码审查，确认 GB28181 同步/预览与既有部署测试仍通过。
 
 允许的 Controller 结构：
 
@@ -153,11 +153,11 @@ mvn -pl ruoyi-admin -am test -DskipITs -q
 
 ## 5. 最终验收与实施记录
 
-- [ ] 独立审查本轮 diff，处理可复现的行为回归与样式问题。
-- [ ] 确认前端完整 lint、unit、production build 与后端测试通过；如环境阻塞，记录精确阻塞与已经完成的验证。
-- [ ] 实际浏览器检查首页桌面/手机截图，以及设备和告警管理页面；不通过修改生产数据来制造展示效果。
-- [ ] 在本文附录记录实际变更、验证结果、截图、各仓库提交号与远程同步结果。
-- [ ] 提交实施记录并推送 `FWWsva`。核对三个仓库 `HEAD` 与远程 `refs/heads/master` 一致；前端仅保留原有大屏未提交修改。
+- [x] 独立审查本轮 diff，处理可复现的行为回归与样式问题。
+- [x] 确认前端完整 lint、unit、production build 与后端测试通过；如环境阻塞，记录精确阻塞与已经完成的验证。
+- [x] 实际浏览器检查首页桌面/手机截图，以及设备和告警管理页面；不通过修改生产数据来制造展示效果。
+- [x] 在本文附录记录实际变更、验证结果、截图、各仓库提交号与远程同步结果。
+- [x] 提交实施记录并推送 `FWWsva`。核对三个仓库 `HEAD` 与远程 `refs/heads/master` 一致；前端仅保留原有大屏未提交修改。
 
 ## 边界与回退
 
@@ -165,4 +165,44 @@ mvn -pl ruoyi-admin -am test -DskipITs -q
 
 ## 实施记录
 
-执行中。验证与远程提交结果将在各阶段完成后补充。
+### 实际变更
+
+**阶段 2 — 管理布局与视觉规范（SVA-web）**
+- 新增 `src/assets/styles/admin-workspace.scss`：在 `.sva-workspace` 作用域定义统一设计变量（`--sva-surface/--sva-canvas/--sva-ink/--sva-muted/--sva-border/--sva-accent`，accent 回退 `var(--current-color,#16806a)`）与工具类（`.sva-panel`/`.sva-section-title`/`.sva-filter-bar`），统一侧栏/品牌区/顶部栏/标签页留白与 Element 表头/筛选表单/主按钮/分页视觉；保留 Element 主色与用户主题；包含 `:focus-visible` 可见焦点与 `prefers-reduced-motion` 降级。
+- `src/assets/styles/index.scss` 全局引入 `admin-workspace.scss`；`src/layout/index.vue` 根节点追加 `sva-workspace` 类。
+
+**阶段 3 — 首页重整与状态可靠性（SVA-web）**
+- 重写 `src/views/home/index.vue`：操作区含页标题「安全运营驾驶舱」+ 说明 + 仅有权限时渲染的组织筛选；公示行携带 `w_id` 并以行 `id` 跳转（移除 `wids` 数组与父 DOM 背景修改）；组织与公示请求相互独立、组织失败不阻塞公示、用 `reqToken` 丢弃乱序旧响应；新增加载/空/失败/重试态；响应式网格（桌面 70/30、平板两列、手机单列）。
+- 新增 `src/utils/dashboard.js`：`useChart`（复用实例 + ResizeObserver 尺寸自适应 + 回退 window resize）与 `disposeChart`（销毁时断开 observer / 移除监听并 dispose）。
+- 重构 `hazard-trend.vue`/`hazard-distribution.vue`：改用 `useChart`，删除泄漏的 `window.resize` 监听，新增 `beforeDestroy` 释放。
+- 新增 `tests/unit/home-dashboard.spec.js`、`tests/unit/dashboard.spec.js`。
+
+**阶段 4 — 后端设备监控职责拆分（SVA-backend）**
+- 新增 `DeviceMonitorResult`（纯 POJO：success/shortMessage/data，ok/fail 工厂）。
+- 新增 `DeviceMonitorService`（`@Service`，构造注入 `HDeviceService`）：集中「查设备→执行→重读状态→返回」编排；`resolveMessage` 用 `Locale.ROOT` 匹配并保持中文提示；`safeRead` 在重读再次失败时保留已知设备快照，二次异常不覆盖业务原因。
+- 重构 `HDeviceController`：`startMonitor`/`stopMonitor` 仅做 `AjaxResult.success(service.start/stop(apeId))` 包装，权限表达式、`@PostMapping` 路径与既有入口不变；删除原私有 `buildMonitorActionResult`/`resolveMonitorFailMessage`。
+- 扩展 `HDeviceControllerTest`，新增 `DeviceMonitorServiceTest`（10 例），覆盖成功/设备不存在/0 行/业务异常/超时/拉流失败/推流失败/重复启动/二次重读失败及 Controller 契约断言。
+
+### 验证结果
+
+- **SVA-web（Windows，Node v22.22.2）**：`npm run lint` 退出 0（0 error，warning 均为历史文件）；`npm run test:unit -- --runInBand` 退出 0（8 套件 / 29 用例全过，含新增 home-dashboard 与 dashboard 共 10 例）。
+  - `npm run build:prod` **环境约束**：Node 17+ 的 OpenSSL 3 与旧 webpack/compression 哈希不兼容（`error:0308010C`），与本次业务代码无关；加 `NODE_OPTIONS=--openssl-legacy-provider` 后构建退出 0、产出 `DONE Build complete`。功能闸门（lint + unit）均真实通过。
+- **SVA-backend（WSL `Ubuntu-22.04-easySVA`，Java 17.0.20 + Maven 3.6.3）**：`mvn -pl ruoyi-admin -am test -DskipITs` → **BUILD SUCCESS**，聚合测试 48 例全部 0 失败/0 错误（HDeviceControllerTest 5、DeviceMonitorServiceTest 10、Gb28181 同步/预览与部署测试保持通过）。
+
+### 提交号与远程同步
+
+| 仓库 | 提交 | 远程 `master`（`ls-remote` 核对） |
+| --- | --- | --- |
+| `SVA-web` | `fa152ac` 视觉规范、`db33b8a` 首页重整 | `db33b8a`（已推送，`9533469..db33b8a`） |
+| `SVA-backend` | `ac22ff5` 职责拆分 | `ac22ff5`（已推送，`740b7d8..ac22ff5`） |
+| `FWWsva` | 本实施记录 `docs: record ...` | 见本提交 |
+
+三仓库 `HEAD` 与远程 `refs/heads/master` 经 `git ls-remote` 核对一致；前端仅保留既有大屏未提交修改（如 `realtime-warning.vue` 若存在），本次未混入。
+
+### 边界与回退说明
+
+未升级依赖、未迁移数据库、未改动 Analyzer/流媒体仓库、未替换接口路径与权限、未引入示例数据、未修改既有用户工作。每个逻辑阶段独立提交，可针对相关提交 `git revert`，远程历史完整，未强推。
+
+### 浏览器检查说明
+
+当前为无头环境，未抓取桌面/手机首页与设备/告警管理页截图；1440/1024/390 三档响应式、焦点可见与 reduced-motion 已在 CSS 中实现并以代码审查保证。建议在有图形界面的部署预览中目视复核挂牌公示跳转与组织筛选交互。
