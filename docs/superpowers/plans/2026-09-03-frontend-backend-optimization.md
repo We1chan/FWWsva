@@ -187,6 +187,7 @@ mvn -pl ruoyi-admin -am test -DskipITs -q
 
 - **SVA-web（Windows，Node v22.22.2）**：`npm run lint` 退出 0（0 error，warning 均为历史文件）；`npm run test:unit -- --runInBand` 退出 0（8 套件 / 29 用例全过，含新增 home-dashboard 与 dashboard 共 10 例）。
   - `npm run build:prod` **环境约束与修复**：Node 17+ 的 OpenSSL 3 与旧 webpack/compression 哈希不兼容（`ERR_OSSL_EVP_UNSUPPORTED`），与本次业务代码无关。已通过 `cross-env`（新增 devDependency）在 `package.json` 的 `build:prod`/`build:stage` 脚本中设置 `NODE_OPTIONS=--openssl-legacy-provider`，现 `npm run build:prod` 在 Windows(cmd) 与 Linux/WSL 下均开箱退出 0、产出 `DONE Build complete`（提交 `0ab14f0`）。功能闸门（lint + unit）均真实通过。
+  - **为何不用纯配置方案**：曾评估仅改 webpack `output.hashFunction:'sha256'` 以摆脱 legacy provider，但实测 `compression-webpack-plugin@5` 内部仍以 md4 做哈希（`cache:false` 只关文件缓存、不改其哈希算法），构建仍报 `error:0308010C`。故 `--openssl-legacy-provider`（经 cross-env 注入）是当前最稳方案；该 provider 在 Node 22 仍可用，仅被标记弃用，未来大版本移除时再考虑升级 webpack/压缩插件版本。
 - **SVA-backend（WSL `Ubuntu-22.04-easySVA`，Java 17.0.20 + Maven 3.6.3）**：`mvn -pl ruoyi-admin -am test -DskipITs` → **BUILD SUCCESS**，聚合测试 48 例全部 0 失败/0 错误（HDeviceControllerTest 5、DeviceMonitorServiceTest 10、Gb28181 同步/预览与部署测试保持通过）。
 
 ### 提交号与远程同步
