@@ -90,6 +90,41 @@ sudo systemctl status easysva-gb-media easysva-wvp
 sudo journalctl -u easysva-gb-media -u easysva-wvp -n 200 --no-pager
 ```
 
+##### 业务迁移、同步与回滚
+
+升级已有数据库前先备份，并执行可重复运行的业务迁移；脚本只补充 GB28181 目录字段和 `SLEEP_DUTY` 告警类型，不删除已有 RTSP 或告警数据：
+
+```bash
+mysqldump -uroot -p easySVA > /var/backups/easySVA-before-gb28181.sql
+mysql -uroot -p easySVA < /opt/FWWsva/deploy/sql/20260901_gb28181_business.sql
+```
+
+GB28181 目录同步由设备页的「同步国标设备」按钮或后端管理接口触发；同步后用 `sudo easysva-gb-health` 检查 WVP、SIP 与国标媒体服务。离线通道会保留目录身份并标为离线，不会删除历史设备。若需回退应用版本，先停止后端与协议服务、恢复上述备份，再部署与备份匹配的应用版本；不要对已运行的生产库直接执行初始化 SQL。
+
+睡岗告警使用 `SLEEP_DUTY` 类型，和其他告警一样写入 `h_waring`。验收时应确认「告警管理」可按“睡岗告警”筛选、详情同时显示设备类型和抓拍；空抓拍或加载失败会显示占位，不能以占位替代真实图片留存。
+
+##### 历史告警图片对账
+
+历史记录引用的图片可能已被清理或是 0 字节文件。不要复制其他告警图片来伪造历史截图。部署仓库提供安全对账工具：默认只报告；只有存在于 nginx 告警目录且非空的普通文件才会在 `--apply` 模式下规范化 `picture_url` 和 `picture_absolute_url`。跨出 `alarm/` 的符号链接、目录和不安全路径均不写入；URL 已正确的行保持不变。
+
+```bash
+cd /opt/FWWsva
+sudo ALARM_PUBLIC_BASE_URL='http://服务器IP' \
+  MYSQL_USER=root MYSQL_DATABASE=easySVA \
+  bash deploy/scripts/reconcile-alarm-images.sh
+
+# 先备份数据库、审核报告并暂停图片清理/目录变动，再执行写入
+sudo ALARM_PUBLIC_BASE_URL='http://服务器IP' \
+  MYSQL_USER=root MYSQL_DATABASE=easySVA \
+  bash deploy/scripts/reconcile-alarm-images.sh --apply
+```
+
+可通过 `ALARM_UPLOAD_ROOT` 指定上传根目录（默认 `/var/www/SVA-web/upload`）；需要口令时通过安全的环境变量 `MYSQL_PASSWORD` 或 mysql 客户端配置提供，不要把口令写进脚本或命令历史。`ALARM_PUBLIC_BASE_URL` 必须是浏览器可访问的站点地址，而不是直接使用默认回环地址。
+
+报告区分 `missing`、`unsafe`、`unchanged` 和待修复的 `eligible`。查询失败会非零退出且不开始更新；写入失败也会非零退出，前面已成功写入的行不会自动回滚，修正问题后可重新运行。更新前比较原 URL，若发生并发修改则记为 `conflicted` 跳过。数据库备份用于必要时恢复；脚本不会修改图片文件。缺失路径仅报告，不修改数据库；先从同一事件的原始素材恢复文件后再重新对账。非空文件检查不等同于图片可解码或 HTTP 可访问，仍需逐项验证浏览器实际加载。
+
+2026-09-03 的本机只读对账：63 条带图片路径的记录中，59 条文件缺失、1 条 URL 无需改变、3 条现存演示图片可规范化，实际更新 0 条。历史原图缺失仍是验收限制，新演示图片不能替代历史证据。
+
 #### 使用说明
 
 1.  在设备管理中添加设备
