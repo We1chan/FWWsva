@@ -13,7 +13,9 @@ easySVA（easy Surveillance Video Analytics）是一款面向中小企业的轻�
 - [wvp-GB28181-pro](https://github.com/648540858/wvp-GB28181-pro)  GB28181 SIP信令服务
 
 流媒体协议组的跨仓库职责、数据流和维护约束见
-[GB28181 代码地图](docs/gb28181-code-map.md)。
+[GB28181 代码地图](docs/gb28181-code-map.md)；在另一台 CPU/GPU、原生 Ubuntu
+或 WSL2 电脑部署时，请先阅读
+[流媒体协议组跨电脑部署与验收指南](docs/gb28181-cross-machine-guide.md)。
 
 
 #### 安装教程
@@ -54,11 +56,13 @@ WSL2 验收部署会在服务启动时自动检测 NVIDIA GPU 和 CUDA 依赖；
 
 双击 `启动easySVA.bat` 时会在 ZLMediaKit 启动后自动恢复数据库中状态为 `RUNNING` 的直连设备代理，避免 WSL 完全关闭后出现“设备仍显示运行、预览却没有画面”。示例与候选视频源见 [`deploy/sample-streams.tsv`](deploy/sample-streams.tsv)；验收演示优先使用本地 RTSP 模拟源，公网 HLS 源可能受网络、代理和源站可用性影响。
 
-如需使用仓库镜像或其他GitHub所有者，可在安装前设置 `EASYSVA_REPO_BASE`；如依赖包不在 `/opt`，可设置 `EASYSVA_LIB_ARCHIVE`。安装器默认使用后端 `v1.2.8` 分支和经过验证的 WVP 提交，必要时可通过 `EASYSVA_BACKEND_REF`、`EASYSVA_WVP_REPO`、`EASYSVA_WVP_REF` 覆盖。
+如需使用仓库镜像或其他GitHub所有者，可在安装前设置 `EASYSVA_REPO_BASE`；如依赖包不在 `/opt`，可设置 `EASYSVA_LIB_ARCHIVE`。当前 FWWsva 安装器默认固定另外四个业务仓库和 WVP 的已审核提交，避免不同电脑因分支继续变化而安装到不同代码。只有在目标提交已经复核时，才使用 `EASYSVA_MEDIA_SERVER_REF`、`EASYSVA_SERVER_REF`、`EASYSVA_BACKEND_REF`、`EASYSVA_WEB_REF`、`EASYSVA_WVP_REPO` 或 `EASYSVA_WVP_REF` 覆盖。
 
 ##### GB28181设备接入
 
-部署并重启后，执行以下命令确认后端、WVP、SIP 和独立 ZLMediaKit 均已就绪：
+部署并重启后，执行以下命令确认后端、WVP、SIP 和独立 ZLMediaKit 均已就绪。
+SIP TCP/UDP 至少应有与设备配置一致的一种监听成功；WSL 的 Windows 动态端口排除
+可能使其中一种显示警告，排查方法见跨电脑部署指南：
 
 ```bash
 sudo easysva-gb-health
