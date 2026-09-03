@@ -63,9 +63,9 @@ git lfs install
 git lfs pull --include="test3.mp4,test6.mp4,test8.mp4"
 ```
 
-部署阶段会将它们链接到 `/opt/SVA/samples/`，并安装三路循环 RTSP 模拟摄像头。数据库迁移会创建 test6、test8 和 test3 的睡岗布控任务，大屏预览使用算法输出流，可直接看到 YOLO 检测框。
+部署阶段会将它们链接到 `/opt/SVA/samples/`，并生成四路睡岗检测源：`test6` 和新增的第二路 `test3` 通过 GB28181 软件摄像头接入，原 `test8` 与原 `test3` 保持 RTSP 接入。GB 软件摄像头使用内部循环 RTSP 作为视频输入，但 easySVA 侧完整经过 SIP 注册、目录、INVITE、PS-RTP 和国标专用 ZLMediaKit；大屏四路均使用算法输出流，可直接看到 YOLO 检测框。
 
-如需使用仓库镜像或其他GitHub所有者，可在安装前设置 `EASYSVA_REPO_BASE`；如依赖包不在 `/opt`，可设置 `EASYSVA_LIB_ARCHIVE`。当前 FWWsva 安装器默认固定另外四个业务仓库和 WVP 的已审核提交，避免不同电脑因分支继续变化而安装到不同代码。只有在目标提交已经复核时，才使用 `EASYSVA_MEDIA_SERVER_REF`、`EASYSVA_SERVER_REF`、`EASYSVA_BACKEND_REF`、`EASYSVA_WEB_REF`、`EASYSVA_WVP_REPO` 或 `EASYSVA_WVP_REF` 覆盖。
+如需使用仓库镜像或其他GitHub所有者，可在安装前设置 `EASYSVA_REPO_BASE`；如依赖包不在 `/opt`，可设置 `EASYSVA_LIB_ARCHIVE`。当前 FWWsva 安装器默认固定另外四个业务仓库、WVP 和 GB28181 软件摄像头的已审核提交，避免不同电脑因分支继续变化而安装到不同代码。只有在目标提交已经复核时，才使用 `EASYSVA_MEDIA_SERVER_REF`、`EASYSVA_SERVER_REF`、`EASYSVA_BACKEND_REF`、`EASYSVA_WEB_REF`、`EASYSVA_WVP_REPO`、`EASYSVA_WVP_REF`、`EASYSVA_GB_SIMULATOR_REPO` 或 `EASYSVA_GB_SIMULATOR_REF` 覆盖。
 
 ##### GB28181设备接入
 
@@ -99,8 +99,10 @@ export EASYSVA_WVP_DB_PASSWORD='replace_with_a_database_password'
 服务日志和状态可通过以下命令检查：
 
 ```bash
-sudo systemctl status easysva-gb-media easysva-wvp
-sudo journalctl -u easysva-gb-media -u easysva-wvp -n 200 --no-pager
+sudo systemctl status easysva-gb-media easysva-wvp \
+  easysva-gb-simulator-test6 easysva-gb-simulator-test3
+sudo journalctl -u easysva-gb-media -u easysva-wvp \
+  -u easysva-gb-simulator-test6 -u easysva-gb-simulator-test3 -n 200 --no-pager
 ```
 
 ##### 业务迁移、同步与回滚

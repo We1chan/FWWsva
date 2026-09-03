@@ -1,5 +1,5 @@
 [Unit]
-Description=easySVA simulated RTSP camera 1 (test6)
+Description=easySVA internal test6 source for the GB28181 software camera
 After=network.target easysva-media.service
 Requires=easysva-media.service
 

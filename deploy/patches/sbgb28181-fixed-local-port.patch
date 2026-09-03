@@ -1,0 +1,46 @@
+diff --git a/gb28181_pusher.py b/gb28181_pusher.py
+index a0f8c00..f4ab97d 100644
+--- a/gb28181_pusher.py
++++ b/gb28181_pusher.py
+@@ -90,6 +90,7 @@ class GB28181Pusher(AbstractContextManager):
+         source: str = "test",
+         use_udp_signalling: bool = False,
+         local_ip: Optional[str] = None,
++        local_port: int = 0,
+         verbose: bool = False,
+         # Reconnection parameters
+         reconnect_interval: int = 5,
+@@ -106,6 +107,7 @@ class GB28181Pusher(AbstractContextManager):
+         self.channel_id: str = channel_id
+         self.use_udp_signalling: bool = use_udp_signalling
+         self.local_ip: str = local_ip or find_local_ip(server_ip)
++        self.local_port: int = local_port
+         self.verbose: bool = verbose
+ 
+         # Reconnection settings
+@@ -362,7 +364,7 @@ class GB28181Pusher(AbstractContextManager):
+     def _open_signalling_socket(self) -> None:
+         if self.use_udp_signalling:
+             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+-            sock.bind((self.local_ip, 0))
++            sock.bind((self.local_ip, self.local_port))
+             sock.settimeout(self.RECV_TIMEOUT)
+             LOGGER.info("UDP signalling %s → %s:%d", sock.getsockname(), self.server_ip, self.server_port)
+             self._send = self._wrap_send(lambda d: sock.sendto(d, (self.server_ip, self.server_port)), "UDP→")
+@@ -785,6 +787,8 @@ def _parse_cli(argv: List[str] | None = None) -> argparse.Namespace:  # noqa: D4
+     ap.add_argument("--source", default="test", help="Media source URI (default: videotestsrc)")
+     ap.add_argument("--udp", action="store_true", help="Use UDP for SIP signalling instead of TCP")
+     ap.add_argument("--local-ip", help="Local IP to bind (auto‑detect if omitted)")
++    ap.add_argument("--local-port", type=int, default=0,
++                    help="Local SIP port (0 selects an ephemeral port)")
+     ap.add_argument("--verbose", action="store_true", help="Dump full SIP packets")
+ 
+     # Reconnection options
+@@ -812,6 +816,7 @@ def main(argv: List[str] | None = None) -> None:  # noqa: D401
+         source=ns.source,
+         use_udp_signalling=ns.udp,
+         local_ip=ns.local_ip,
++        local_port=ns.local_port,
+         verbose=ns.verbose,
+         reconnect_interval=ns.reconnect_interval,
+         max_reconnect_attempts=ns.max_reconnect_attempts,

@@ -1,0 +1,17 @@
+[Unit]
+Description=easySVA GB28181 software camera (test6)
+After=network.target easysva-wvp.service easysva-rtsp-simulator.service
+Requires=easysva-wvp.service easysva-rtsp-simulator.service
+
+[Service]
+Type=simple
+Environment=GB28181_DEVICE_ID=44010200491320000006
+Environment=GB28181_CHANNEL_ID=44010200491320000016
+Environment=GB28181_LOCAL_PORT=15066
+Environment=GB28181_SIMULATOR_SOURCE=rtsp://127.0.0.1:9994/live/mock-camera
+ExecStart=/opt/SVA/gb28181/easysva-gb-simulator-launcher.sh
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -5,7 +5,7 @@ title easySVA Stop
 set "DISTRO=Ubuntu-22.04-easySVA"
 
 echo [1/3] Stopping easySVA services...
-wsl.exe -d "%DISTRO%" -u root -- systemctl stop easysva-rtsp-simulator easysva-rtsp-simulator-2 easysva-rtsp-simulator-3 easysva-analyzer easysva-media easysva-backend nginx redis-server mariadb >nul 2>&1
+wsl.exe -d "%DISTRO%" -u root -- systemctl stop easysva-gb-simulator-test6 easysva-gb-simulator-test3 easysva-wvp easysva-gb-media easysva-rtsp-simulator easysva-rtsp-simulator-2 easysva-rtsp-simulator-3 easysva-analyzer easysva-media easysva-backend nginx redis-server mariadb >nul 2>&1
 
 echo [2/3] Terminating the easySVA WSL environment...
 wsl.exe --terminate "%DISTRO%" >nul 2>&1

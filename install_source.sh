@@ -13,10 +13,12 @@ REPO_BASE="${EASYSVA_REPO_BASE:-https://github.com/We1chan}"
 # The collaboration backend does not publish the old upstream v1.2.8 tag.
 MEDIA_SERVER_REF="${EASYSVA_MEDIA_SERVER_REF:-95eda58fcf3e8ed401d404f825cfbc434362af34}"
 ANALYZER_REF="${EASYSVA_SERVER_REF:-f49d60183014117152607be2b592a72776db6f9f}"
-BACKEND_REF="${EASYSVA_BACKEND_REF:-962a7e0fabb913334eb81663e1d9abda3a0be0d6}"
+BACKEND_REF="${EASYSVA_BACKEND_REF:-bc978100a6c3bdcea0d6da542ca064c83dde1369}"
 WEB_REF="${EASYSVA_WEB_REF:-e21712586d78114d2122ab42029a7c965e5aebae}"
 WVP_REPO="${EASYSVA_WVP_REPO:-https://github.com/648540858/wvp-GB28181-pro.git}"
 WVP_REF="${EASYSVA_WVP_REF:-fb45787da01cb4f33a0b1dfaa613becf67391c17}"
+GB_SIMULATOR_REPO="${EASYSVA_GB_SIMULATOR_REPO:-https://github.com/sb-im/sbgb28181.git}"
+GB_SIMULATOR_REF="${EASYSVA_GB_SIMULATOR_REF:-1da9bc62134d4cb1fd4374f733583fb5997c3f0a}"
 WVP_DB_NAME="${EASYSVA_WVP_DB_NAME:-wvp}"
 WVP_DB_USERNAME="${EASYSVA_WVP_DB_USERNAME:-wvp}"
 WVP_DB_PASSWORD="${EASYSVA_WVP_DB_PASSWORD:-easySVA.GB28181}"
@@ -109,7 +111,11 @@ echo "现在开始安装环境和依赖包，并且编译FFmpeg"
 sleep 2
 
 apt update
-apt install -y build-essential unzip
+apt install -y build-essential unzip meson ninja-build python3 \
+    gstreamer1.0-tools gstreamer1.0-plugins-base \
+    gstreamer1.0-plugins-good gstreamer1.0-plugins-bad \
+    gstreamer1.0-plugins-ugly gstreamer1.0-libav \
+    libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libglib2.0-dev
 
 cd /opt
 unzip "$LIB_ARCHIVE"
@@ -463,6 +469,8 @@ mysql -uroot -peasySVA.EZ easySVA < \
     "$SCRIPT_DIR/deploy/sql/20260903_add_test3_sleep_source.sql"
 mysql -uroot -peasySVA.EZ easySVA < \
     "$SCRIPT_DIR/deploy/sql/20260903_tune_sleep_detection.sql"
+mysql -uroot -peasySVA.EZ easySVA < \
+    "$SCRIPT_DIR/deploy/sql/20260903_mixed_gb_rtsp_sources.sql"
 
 
 
@@ -481,6 +489,14 @@ cd /opt/SVA/wvp-GB28181-pro
 JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 \
 PATH="/usr/lib/jvm/java-21-openjdk-amd64/bin:$PATH" \
     mvn clean package -DskipTests
+
+echo "编译GB28181软件摄像头"
+checkout_repo_at_ref "$GB_SIMULATOR_REPO" /opt/SVA/sbgb28181 "$GB_SIMULATOR_REF"
+git -C /opt/SVA/sbgb28181 apply \
+    "$SCRIPT_DIR/deploy/patches/sbgb28181-fixed-local-port.patch"
+meson setup /opt/SVA/sbgb28181/gst-gb28181sink/build \
+    /opt/SVA/sbgb28181/gst-gb28181sink
+meson compile -C /opt/SVA/sbgb28181/gst-gb28181sink/build
 
 WVP_SCHEMA="/opt/SVA/wvp-GB28181-pro/数据库/2.7.4/初始化-mysql-2.7.4.sql"
 if [[ ! -f "$WVP_SCHEMA" ]]; then
@@ -644,6 +660,8 @@ if [[ "$deploy_choice" =~ ^[Yy]$ ]]; then
         /opt/SVA/wvp/easysva-wvp-launcher.sh
     install -m 0755 "$SCRIPT_DIR/deploy/scripts/easysva-gb-health.sh" \
         /usr/local/bin/easysva-gb-health
+    install -m 0755 "$SCRIPT_DIR/deploy/scripts/easysva-gb-simulator-launcher.sh" \
+        /opt/SVA/gb28181/easysva-gb-simulator-launcher.sh
 
     mkdir -p /opt/SVA/server
     install -m 0755 /opt/SVA/SVA-server/build-cpu/Analyzer /opt/SVA/server/Analyzer.cpu
@@ -675,6 +693,10 @@ if [[ "$deploy_choice" =~ ^[Yy]$ ]]; then
         /etc/systemd/system/easysva-gb-media.service
     install -m 0644 "$SCRIPT_DIR/deploy/systemd/easysva-wvp.service" \
         /etc/systemd/system/easysva-wvp.service
+    install -m 0644 "$SCRIPT_DIR/deploy/systemd/easysva-gb-simulator-test6.service" \
+        /etc/systemd/system/easysva-gb-simulator-test6.service
+    install -m 0644 "$SCRIPT_DIR/deploy/systemd/easysva-gb-simulator-test3.service" \
+        /etc/systemd/system/easysva-gb-simulator-test3.service
 
     if command -v ufw >/dev/null 2>&1 && ufw status | grep -q '^Status: active'; then
         ufw allow 5060/tcp
@@ -689,7 +711,8 @@ if [[ "$deploy_choice" =~ ^[Yy]$ ]]; then
     systemctl daemon-reload
     systemctl enable easysva-backend easysva-media easysva-analyzer easysva-stream-restore \
         easysva-rtsp-simulator easysva-rtsp-simulator-2 easysva-rtsp-simulator-3 \
-        easysva-gb-media easysva-wvp nginx mariadb redis-server
+        easysva-gb-media easysva-wvp easysva-gb-simulator-test6 \
+        easysva-gb-simulator-test3 nginx mariadb redis-server
 
 fi
 
