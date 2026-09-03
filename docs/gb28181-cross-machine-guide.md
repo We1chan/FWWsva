@@ -23,10 +23,12 @@ NVIDIA GPU 电脑；GPU 只影响 AI 分析器，不影响本指南的国标链�
 本次跨电脑基线使用以下可复现版本：
 
 - SVA-mediaServer：`95eda58fcf3e8ed401d404f825cfbc434362af34`。
-- SVA-server：`8d51c1415113810f7d7c507c39999abbf8da3c3a`。
-- SVA-backend：`740b7d89b82eceb020167026f2f7f238eabcd718`，包含完整 GB28181
-  数据模型、同步、点播、回归测试和最新业务迁移适配。
-- SVA-web：`95334691f215a864fd599eaff58c82e2acce50d0`。
+- SVA-server：`f49d60183014117152607be2b592a72776db6f9f`，包含 GB28181 流输入、
+  `sleep_duty` 协议兼容和姿态+眼部睡岗状态机。
+- SVA-backend：`962a7e0fabb913334eb81663e1d9abda3a0be0d6`，包含完整 GB28181
+  数据模型、同步、点播、告警映射及 Analyzer 重启后的布控自动恢复。
+- SVA-web：`e21712586d78114d2122ab42029a7c965e5aebae`，包含 GB28181
+  设备管理、同源媒体地址转换、布控预览和大屏算法流播放修复。
 - wvp-GB28181-pro：`fb45787da01cb4f33a0b1dfaa613becf67391c17`。
 - 软件相机 sbgb28181：`1da9bc62134d4cb1fd4374f733583fb5997c3f0a`。
 
