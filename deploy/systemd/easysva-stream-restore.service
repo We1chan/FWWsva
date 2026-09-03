@@ -1,6 +1,6 @@
 [Unit]
 Description=Restore easySVA direct stream proxies
-After=mariadb.service easysva-media.service easysva-rtsp-simulator.service
+After=mariadb.service easysva-media.service easysva-rtsp-simulator.service easysva-rtsp-simulator-2.service easysva-rtsp-simulator-3.service
 Wants=mariadb.service easysva-media.service
 
 [Service]

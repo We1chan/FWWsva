@@ -14,7 +14,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0deploy\scripts\sta
 if errorlevel 1 goto :keepalive_error
 
 echo [3/5] Starting database, backend, media and analyzer services...
-wsl.exe -d "%DISTRO%" -u root -- systemctl start mariadb redis-server nginx easysva-backend easysva-media easysva-analyzer easysva-rtsp-simulator >nul 2>&1
+wsl.exe -d "%DISTRO%" -u root -- systemctl start mariadb redis-server nginx easysva-backend easysva-media easysva-analyzer easysva-rtsp-simulator easysva-rtsp-simulator-2 easysva-rtsp-simulator-3 >nul 2>&1
 if errorlevel 1 goto :service_error
 
 echo [4/5] Restoring running camera streams...

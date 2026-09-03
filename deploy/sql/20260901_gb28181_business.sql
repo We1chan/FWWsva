@@ -53,6 +53,26 @@ SET @ddl = IF((SELECT COUNT(*) FROM information_schema.columns WHERE table_schem
     'ALTER TABLE h_device ADD COLUMN sync_source varchar(32) NULL COMMENT ''同步来源: GB28181目录/manual'' AFTER last_seen_at', 'SELECT 1');
 PREPARE s6 FROM @ddl; EXECUTE s6; DEALLOCATE PREPARE s6;
 
+-- Keep this aggregate migration in sync with the backend's GB stream routing
+-- fields.  The current mapper selects these columns for every device, including
+-- ordinary DIRECT/RTSP devices, so omitting one prevents all device APIs from
+-- loading after an upgrade.
+SET @ddl = IF((SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = @schema_name AND table_name = 'h_device' AND column_name = 'gb_media_server_id') = 0,
+    'ALTER TABLE h_device ADD COLUMN gb_media_server_id varchar(50) NULL COMMENT ''WVP媒体服务器ID'' AFTER gb_channel_id', 'SELECT 1');
+PREPARE s7 FROM @ddl; EXECUTE s7; DEALLOCATE PREPARE s7;
+
+SET @ddl = IF((SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = @schema_name AND table_name = 'h_device' AND column_name = 'gb_stream_id') = 0,
+    'ALTER TABLE h_device ADD COLUMN gb_stream_id varchar(255) NULL COMMENT ''当前WVP/ZLM流ID'' AFTER gb_media_server_id', 'SELECT 1');
+PREPARE s8 FROM @ddl; EXECUTE s8; DEALLOCATE PREPARE s8;
+
+SET @ddl = IF((SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = @schema_name AND table_name = 'h_device' AND column_name = 'gb_stream_url') = 0,
+    'ALTER TABLE h_device ADD COLUMN gb_stream_url varchar(1024) NULL COMMENT ''当前WVP/ZLM RTSP流地址'' AFTER gb_stream_id', 'SELECT 1');
+PREPARE s9 FROM @ddl; EXECUTE s9; DEALLOCATE PREPARE s9;
+
+SET @ddl = IF((SELECT COUNT(*) FROM information_schema.columns WHERE table_schema = @schema_name AND table_name = 'h_device' AND column_name = 'gb_last_sync_time') = 0,
+    'ALTER TABLE h_device ADD COLUMN gb_last_sync_time datetime NULL COMMENT ''最近一次WVP同步时间'' AFTER gb_stream_url', 'SELECT 1');
+PREPARE s10 FROM @ddl; EXECUTE s10; DEALLOCATE PREPARE s10;
+
 -- Existing WVP-synchronized rows predate device_type. ALTER TABLE fills the new
 -- NOT NULL column with its RTSP default, so restore their actual access type.
 UPDATE h_device
@@ -65,8 +85,21 @@ WHERE UPPER(stream_source_type) = 'GB28181'
 SET @dup_ape = (SELECT COUNT(*) FROM (SELECT ape_id FROM h_device GROUP BY ape_id HAVING COUNT(*) > 1) t);
 SET @has_uk = (SELECT COUNT(*) FROM information_schema.STATISTICS WHERE table_schema = @schema_name AND table_name = 'h_device' AND index_name = 'uk_h_device_ape_id');
 SET @ddl = IF(@has_uk = 0 AND @dup_ape = 0, 'ALTER TABLE h_device ADD UNIQUE KEY uk_h_device_ape_id (ape_id)', 'SELECT 1');
-PREPARE s7 FROM @ddl; EXECUTE s7; DEALLOCATE PREPARE s7;
+PREPARE s11 FROM @ddl; EXECUTE s11; DEALLOCATE PREPARE s11;
 
 INSERT INTO h_waring_type (device_id, device_name, alarm_type, alarm_type_name, is_handle, create_time, update_time)
 SELECT 'SYSTEM', '系统', 'SLEEP_DUTY', '睡岗告警', 0, NOW(), NOW()
 WHERE NOT EXISTS (SELECT 1 FROM h_waring_type WHERE alarm_type = 'SLEEP_DUTY');
+
+-- Register the production hybrid pose/eye model in the algorithm selector.
+-- The Analyzer resolves this code to yolo11n-pose.onnx plus the bundled eye
+-- classifier and only exposes person as a selectable target.
+INSERT INTO av_algorithm
+    (sort, code, name, api_url, object_count, object_str, remark, state, create_time, update_time)
+SELECT
+    COALESCE((SELECT MAX(existing.sort) + 1 FROM av_algorithm existing), 0),
+    'on_yolo11n_pose_sleep', '睡岗检测（姿态+眼部）', '', 1, 'person',
+    'YOLO Pose 初筛、眼部确认，眼部不可见时使用严格姿态回退', 0, NOW(), NOW()
+WHERE NOT EXISTS (
+    SELECT 1 FROM av_algorithm WHERE code = 'on_yolo11n_pose_sleep'
+);

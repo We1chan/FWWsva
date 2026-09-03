@@ -457,6 +457,12 @@ FLUSH PRIVILEGES;
 EOF
 
 mysql -uroot -peasySVA.EZ easySVA < "$SQL_FILE"
+mysql -uroot -peasySVA.EZ easySVA < \
+    "$SCRIPT_DIR/deploy/sql/20260901_gb28181_business.sql"
+mysql -uroot -peasySVA.EZ easySVA < \
+    "$SCRIPT_DIR/deploy/sql/20260903_add_test3_sleep_source.sql"
+mysql -uroot -peasySVA.EZ easySVA < \
+    "$SCRIPT_DIR/deploy/sql/20260903_tune_sleep_detection.sql"
 
 
 
@@ -556,6 +562,16 @@ server {
             proxy_set_header Host $http_host;
         }
 
+        location /media/ {
+            proxy_pass http://127.0.0.1:9992/;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+            proxy_set_header Host $http_host;
+            proxy_read_timeout 600s;
+            proxy_buffering off;
+        }
+
         location /websocket/ {  # 匹配 WebSocket 请求路径
             proxy_pass http://websocket_backend;  # 转发到上游服务器
             proxy_http_version 1.1;  # 启用 HTTP/1.1
@@ -574,6 +590,17 @@ if [[ "$deploy_choice" =~ ^[Yy]$ ]]; then
     echo "正在部署软件并设置开机自启..."
     mkdir -p /opt/SVA/backend
     cp /opt/SVA/SVA-backend/ruoyi-admin/target/ruoyi-admin.jar /opt/SVA/backend/backend.jar
+
+    # Sample videos are versioned with Git LFS. Keep service files independent
+    # of the checkout location while avoiding a second multi-gigabyte copy.
+    mkdir -p /opt/SVA/samples
+    for sample_video in test3.mp4 test6.mp4 test8.mp4; do
+        if [[ ! -f "$SCRIPT_DIR/$sample_video" ]]; then
+            echo "缺少模拟摄像头素材 $SCRIPT_DIR/$sample_video，请先执行 git lfs pull。" >&2
+            exit 1
+        fi
+        ln -sfn "$SCRIPT_DIR/$sample_video" "/opt/SVA/samples/$sample_video"
+    done
 
     # GB28181 复用同一 ZLMediaKit 可执行文件，但采用独立配置、端口和 systemd 服务。
     mkdir -p /opt/SVA/mediaServer
@@ -638,6 +665,12 @@ if [[ "$deploy_choice" =~ ^[Yy]$ ]]; then
         /etc/systemd/system/easysva-analyzer.service
     install -m 0644 "$SCRIPT_DIR/deploy/systemd/easysva-stream-restore.service" \
         /etc/systemd/system/easysva-stream-restore.service
+    install -m 0644 "$SCRIPT_DIR/deploy/systemd/easysva-rtsp-simulator.service" \
+        /etc/systemd/system/easysva-rtsp-simulator.service
+    install -m 0644 "$SCRIPT_DIR/deploy/systemd/easysva-rtsp-simulator-2.service" \
+        /etc/systemd/system/easysva-rtsp-simulator-2.service
+    install -m 0644 "$SCRIPT_DIR/deploy/systemd/easysva-rtsp-simulator-3.service" \
+        /etc/systemd/system/easysva-rtsp-simulator-3.service
     install -m 0644 "$SCRIPT_DIR/deploy/systemd/easysva-gb-media.service" \
         /etc/systemd/system/easysva-gb-media.service
     install -m 0644 "$SCRIPT_DIR/deploy/systemd/easysva-wvp.service" \
@@ -655,6 +688,7 @@ if [[ "$deploy_choice" =~ ^[Yy]$ ]]; then
 
     systemctl daemon-reload
     systemctl enable easysva-backend easysva-media easysva-analyzer easysva-stream-restore \
+        easysva-rtsp-simulator easysva-rtsp-simulator-2 easysva-rtsp-simulator-3 \
         easysva-gb-media easysva-wvp nginx mariadb redis-server
 
 fi

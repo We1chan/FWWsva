@@ -4,4 +4,6 @@ CCTV-2	HLS	http://tv.byr.cn/liverespath/6b13fe5368d391761312a985ace065c0ecad2f5e
 CCTV-3	HLS	http://tv.byr.cn/liverespath/f76f9947c68be18d7a456e25aa59a08c5747e6a5/b517de9fbc-0-0-0dd6d8166212510f7494a7acb52d9ec0/index.m3u8	2026-09-01	Windows HTTP 200；当前 WSL/ZLM 环境受代理影响，实际拉流失败
 CCTV-4	HLS	http://tv.byr.cn/liverespath/c70d81eefb04fef7777c2a5aab4ddc9459ce4246/645991f9fa-0-0-495b10aee2a74997a86bd020a0a8cedf/index.m3u8	2026-09-01	Windows HTTP 200；当前 WSL/ZLM 环境受代理影响，实际拉流失败
 CCTV-5 体育	HLS	http://tv.byr.cn/liverespath/3f76badfb3a23d95f26ff573a93902bbdb8b8e98/684dffabd7-0-0-2128bc6ee164ef7658511da8325c9b8d/index.m3u8	2026-09-01	Windows HTTP 200；当前 WSL/ZLM 环境受代理影响，实际拉流失败
-本地模拟摄像头	RTSP	rtsp://127.0.0.1:9994/live/mock-camera	2026-09-01	验收推荐；由 test1.mp4 循环推流，WSL 内已验证
+本地模拟摄像头-test6	RTSP	rtsp://127.0.0.1:9994/live/mock-camera	2026-09-02	睡岗检测摄像头1；由 test6.mp4 循环推流，NVENC 编码
+本地模拟摄像头-test8	RTSP	rtsp://127.0.0.1:9994/live/mock-camera-2	2026-09-02	睡岗检测摄像头2；由 test8.mp4 循环推流，NVENC 编码
+本地模拟摄像头-test3	RTSP	rtsp://127.0.0.1:9994/live/mock-camera-3	2026-09-03	睡岗检测摄像头3；由 test3.mp4 循环推流，NVENC 编码

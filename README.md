@@ -56,6 +56,15 @@ WSL2 验收部署会在服务启动时自动检测 NVIDIA GPU 和 CUDA 依赖；
 
 双击 `启动easySVA.bat` 时会在 ZLMediaKit 启动后自动恢复数据库中状态为 `RUNNING` 的直连设备代理，避免 WSL 完全关闭后出现“设备仍显示运行、预览却没有画面”。示例与候选视频源见 [`deploy/sample-streams.tsv`](deploy/sample-streams.tsv)；验收演示优先使用本地 RTSP 模拟源，公网 HLS 源可能受网络、代理和源站可用性影响。
 
+睡岗验收用的 `test3.mp4`、`test6.mp4` 和 `test8.mp4` 使用 Git LFS 管理。克隆前请先安装 Git LFS；如果已经克隆但视频只是几百字节的指针文件，在仓库根目录执行：
+
+```bash
+git lfs install
+git lfs pull --include="test3.mp4,test6.mp4,test8.mp4"
+```
+
+部署阶段会将它们链接到 `/opt/SVA/samples/`，并安装三路循环 RTSP 模拟摄像头。数据库迁移会创建 test6、test8 和 test3 的睡岗布控任务，大屏预览使用算法输出流，可直接看到 YOLO 检测框。
+
 如需使用仓库镜像或其他GitHub所有者，可在安装前设置 `EASYSVA_REPO_BASE`；如依赖包不在 `/opt`，可设置 `EASYSVA_LIB_ARCHIVE`。当前 FWWsva 安装器默认固定另外四个业务仓库和 WVP 的已审核提交，避免不同电脑因分支继续变化而安装到不同代码。只有在目标提交已经复核时，才使用 `EASYSVA_MEDIA_SERVER_REF`、`EASYSVA_SERVER_REF`、`EASYSVA_BACKEND_REF`、`EASYSVA_WEB_REF`、`EASYSVA_WVP_REPO` 或 `EASYSVA_WVP_REF` 覆盖。
 
 ##### GB28181设备接入
