@@ -465,6 +465,10 @@ mysql -uroot -peasySVA.EZ easySVA < \
     /opt/SVA/SVA-backend/deploy/gb28181/sql/001_extend_h_device.sql
 mysql -uroot -peasySVA.EZ easySVA < \
     /opt/SVA/SVA-backend/deploy/gb28181/sql/002_add_gb_stream_url.sql
+# Apply the unified GB28181 business schema after the earlier WVP columns.
+# This migration is idempotent and preserves existing RTSP devices and alarms.
+mysql -uroot -peasySVA.EZ easySVA < \
+    /opt/FWWsva/deploy/sql/20260901_gb28181_business.sql
 
 ############################安装web#######################################
 apt install -y nginx-full

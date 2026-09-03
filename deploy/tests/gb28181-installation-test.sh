@@ -15,6 +15,7 @@ bash -n "$health"
 grep -q 'EASYSVA_BACKEND_REF:-v1.2.8' "$repo_dir/install_source.sh"
 grep -q 'java-17-openjdk-amd64' "$repo_dir/deploy/systemd/easysva-backend.service"
 grep -q '001_extend_h_device.sql' "$repo_dir/install_source.sh"
+grep -q '20260901_gb28181_business.sql' "$repo_dir/install_source.sh"
 grep -q '002_add_gb_stream_url.sql' "$repo_dir/install_source.sh"
 grep -q 'easysva-gb-media easysva-wvp' "$repo_dir/install_source.sh"
 
