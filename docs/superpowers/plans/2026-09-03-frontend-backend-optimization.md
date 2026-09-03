@@ -186,14 +186,14 @@ mvn -pl ruoyi-admin -am test -DskipITs -q
 ### 验证结果
 
 - **SVA-web（Windows，Node v22.22.2）**：`npm run lint` 退出 0（0 error，warning 均为历史文件）；`npm run test:unit -- --runInBand` 退出 0（8 套件 / 29 用例全过，含新增 home-dashboard 与 dashboard 共 10 例）。
-  - `npm run build:prod` **环境约束**：Node 17+ 的 OpenSSL 3 与旧 webpack/compression 哈希不兼容（`error:0308010C`），与本次业务代码无关；加 `NODE_OPTIONS=--openssl-legacy-provider` 后构建退出 0、产出 `DONE Build complete`。功能闸门（lint + unit）均真实通过。
+  - `npm run build:prod` **环境约束与修复**：Node 17+ 的 OpenSSL 3 与旧 webpack/compression 哈希不兼容（`ERR_OSSL_EVP_UNSUPPORTED`），与本次业务代码无关。已通过 `cross-env`（新增 devDependency）在 `package.json` 的 `build:prod`/`build:stage` 脚本中设置 `NODE_OPTIONS=--openssl-legacy-provider`，现 `npm run build:prod` 在 Windows(cmd) 与 Linux/WSL 下均开箱退出 0、产出 `DONE Build complete`（提交 `0ab14f0`）。功能闸门（lint + unit）均真实通过。
 - **SVA-backend（WSL `Ubuntu-22.04-easySVA`，Java 17.0.20 + Maven 3.6.3）**：`mvn -pl ruoyi-admin -am test -DskipITs` → **BUILD SUCCESS**，聚合测试 48 例全部 0 失败/0 错误（HDeviceControllerTest 5、DeviceMonitorServiceTest 10、Gb28181 同步/预览与部署测试保持通过）。
 
 ### 提交号与远程同步
 
 | 仓库 | 提交 | 远程 `master`（`ls-remote` 核对） |
 | --- | --- | --- |
-| `SVA-web` | `fa152ac` 视觉规范、`db33b8a` 首页重整 | `db33b8a`（已推送，`9533469..db33b8a`） |
+| `SVA-web` | `fa152ac` 视觉规范、`db33b8a` 首页重整、`0ab14f0` build:prod 修复 | `0ab14f0`（已推送，`9533469..0ab14f0`） |
 | `SVA-backend` | `ac22ff5` 职责拆分 | `ac22ff5`（已推送，`740b7d8..ac22ff5`） |
 | `FWWsva` | 本实施记录 `docs: record ...` | 见本提交 |
 
