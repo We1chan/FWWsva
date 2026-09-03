@@ -34,10 +34,30 @@ check_http() {
     local code
     code="$(curl --noproxy '*' --silent --show-error --output /dev/null --max-time 5 \
         --write-out '%{http_code}' "$url" 2>/dev/null || true)"
-    if [[ "$code" =~ ^[1-5][0-9][0-9]$ ]]; then
+    if [[ "$code" =~ ^2[0-9][0-9]$ ]]; then
         printf '[OK]   %s HTTP %s (%s)\n' "$name" "$url" "$code"
     else
         printf '[FAIL] %s HTTP %s\n' "$name" "$url" >&2
+        failures=$((failures + 1))
+    fi
+}
+
+check_wvp_api() {
+    local endpoint="$1"
+    local response
+    response="$(curl --noproxy '*' --silent --show-error --fail --max-time 5 \
+        "$endpoint" 2>/dev/null || true)"
+    if python3 -c 'import json,sys
+try:
+    result=json.load(sys.stdin)
+    data=result.get("data",result)
+    valid=result.get("code",0)==0 and isinstance(data,dict) and isinstance(data.get("list"),list)
+except (ValueError,AttributeError,TypeError):
+    valid=False
+sys.exit(0 if valid else 1)' <<<"$response"; then
+        printf '[OK]   WVP 设备目录 API %s\n' "$endpoint"
+    else
+        printf '[FAIL] WVP 设备目录不可用（服务、认证或响应异常）%s\n' "$endpoint" >&2
         failures=$((failures + 1))
     fi
 }
@@ -47,7 +67,13 @@ check_zlm_api() {
     local response
     response="$(curl --noproxy '*' --silent --show-error --fail --get \
         --max-time 5 --data-urlencode "secret=$zlm_secret" "$endpoint" 2>/dev/null || true)"
-    if grep -Eq '"code"[[:space:]]*:[[:space:]]*0' <<<"$response"; then
+    if python3 -c 'import json,sys
+try:
+    result=json.load(sys.stdin)
+    valid=isinstance(result,dict) and result.get("code")==0
+except (ValueError,TypeError):
+    valid=False
+sys.exit(0 if valid else 1)' <<<"$response"; then
         printf '[OK]   GB28181 ZLMediaKit API %s\n' "$endpoint"
     else
         printf '[FAIL] GB28181 ZLMediaKit API %s（服务或密钥错误）\n' "$endpoint" >&2
@@ -81,7 +107,7 @@ check_sip_transports() {
 check_tcp "easySVA后端" 127.0.0.1 9114
 check_http "easySVA Web" "$web_health_url"
 check_tcp "原 RTSP" 127.0.0.1 9994
-check_http "WVP" 'http://127.0.0.1:18080/api/device/query/devices?page=1&count=1'
+check_wvp_api 'http://127.0.0.1:18080/api/device/query/devices?page=1&count=1'
 check_sip_transports 5060
 check_zlm_api http://127.0.0.1:9996/index/api/getApiList
 check_tcp "GB28181 RTSP" 127.0.0.1 9997

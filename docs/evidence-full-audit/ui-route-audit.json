@@ -1,0 +1,1482 @@
+{
+  "base": "http://localhost",
+  "at": "2026-09-03T11:27:57.343Z",
+  "results": [
+    {
+      "path": "/index",
+      "title": "AI视频安全生产分析系统",
+      "buttons": [],
+      "text": "本月报警数量\n4 / 条\n环比增长 0%同比增长 0%\n年度累计报警数量：4 / 条\n本月报警处置逾期数量\n0 / 条\n环比增长 0%同比增长 0%\n本年逾期报警数：0 / 条\n本月处置报警数量及处置率\n0 / 条\n0%\n报警趋势分析\n周 | 月 | 季度 | 年\n增长率分析\n月度增长率： 0%\n季度增长率： 0%\n年度增长率： 0%\n月度处置率: 0%\n季度处置率： 0%\n年度处置率： 0%\n报警类型统计\n周 | 月 | 季度 | 年\n报警类型分布\n周 | 月 | 季度 | 年\n报警挂牌公示\n报警事件\n\t\n事件位置\n\t\n处置人\n\t\n\n暂无数据",
+      "errors": []
+    },
+    {
+      "path": "/system/user",
+      "title": "AI视频安全生产分析系统",
+      "component": "system/user/index",
+      "buttons": [],
+      "text": "本月报警数量\n4 / 条\n环比增长 0%同比增长 0%\n年度累计报警数量：4 / 条\n本月报警处置逾期数量\n0 / 条\n环比增长 0%同比增长 0%\n本年逾期报警数：0 / 条\n本月处置报警数量及处置率\n0 / 条\n0%\n报警趋势分析\n周 | 月 | 季度 | 年\n增长率分析\n月度增长率： 0%\n季度增长率： 0%\n年度增长率： 0%\n月度处置率: 0%\n季度处置率： 0%\n年度处置率： 0%\n报警类型统计\n周 | 月 | 季度 | 年\n报警类型分布\n周 | 月 | 季度 | 年\n报警挂牌公示\n报警事件\n\t\n事件位置\n\t\n处置人\n\t\n\n暂无数据",
+      "errors": []
+    },
+    {
+      "path": "/system/role",
+      "title": "AI视频安全生产分析系统",
+      "component": "system/role/index",
+      "buttons": [
+        {
+          "text": "搜索",
+          "disabled": false
+        },
+        {
+          "text": "重置",
+          "disabled": false
+        },
+        {
+          "text": "新增",
+          "disabled": false
+        },
+        {
+          "text": "修改",
+          "disabled": true
+        },
+        {
+          "text": "删除",
+          "disabled": true
+        },
+        {
+          "text": "导出",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": true
+        },
+        {
+          "text": "",
+          "disabled": true
+        }
+      ],
+      "text": "角色名称权限字符状态\n创建时间\n-\n搜索重置\n新增\n修改\n删除\n导出\n\t角色编号\t角色名称\t权限字符\t显示顺序\t状态\t创建时间\t操作\n\t\n1\n\t\n超级管理员\n\t\nadmin\n\t\n1\n\t\n\t\n2023-12-27 02:17:11\n\t\n共 1 条\n1\n前往页",
+      "errors": []
+    },
+    {
+      "path": "/system/menu",
+      "title": "AI视频安全生产分析系统",
+      "component": "system/menu/index",
+      "buttons": [
+        {
+          "text": "搜索",
+          "disabled": false
+        },
+        {
+          "text": "重置",
+          "disabled": false
+        },
+        {
+          "text": "新增",
+          "disabled": false
+        },
+        {
+          "text": "修改",
+          "disabled": true
+        },
+        {
+          "text": "删除",
+          "disabled": true
+        },
+        {
+          "text": "导出",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": true
+        },
+        {
+          "text": "",
+          "disabled": true
+        }
+      ],
+      "text": "角色名称权限字符状态\n创建时间\n-\n搜索重置\n新增\n修改\n删除\n导出\n\t角色编号\t角色名称\t权限字符\t显示顺序\t状态\t创建时间\t操作\n\t\n1\n\t\n超级管理员\n\t\nadmin\n\t\n1\n\t\n\t\n2023-12-27 02:17:11\n\t\n共 1 条\n1\n前往页",
+      "errors": []
+    },
+    {
+      "path": "/system/dept",
+      "title": "AI视频安全生产分析系统",
+      "component": "system/dept/index",
+      "buttons": [
+        {
+          "text": "搜索",
+          "disabled": false
+        },
+        {
+          "text": "重置",
+          "disabled": false
+        },
+        {
+          "text": "新增",
+          "disabled": false
+        },
+        {
+          "text": "展开/折叠",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "修改",
+          "disabled": false
+        },
+        {
+          "text": "新增",
+          "disabled": false
+        }
+      ],
+      "text": "组织名称状态\n搜索重置\n新增\n展开/折叠\n组织名称\t排序\t状态\t创建时间\t操作\n总公司\n\t\n0\n\t\n正常\n\t\n2023-12-27 02:17:11\n\t\n修改新增",
+      "errors": []
+    },
+    {
+      "path": "/system/runtimeConfig",
+      "title": "AI视频安全生产分析系统",
+      "component": "system/config/business",
+      "buttons": [
+        {
+          "text": "搜索",
+          "disabled": false
+        },
+        {
+          "text": "重置",
+          "disabled": false
+        },
+        {
+          "text": "新增",
+          "disabled": false
+        },
+        {
+          "text": "展开/折叠",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "修改",
+          "disabled": false
+        },
+        {
+          "text": "新增",
+          "disabled": false
+        }
+      ],
+      "text": "组织名称状态\n搜索重置\n新增\n展开/折叠\n组织名称\t排序\t状态\t创建时间\t操作\n总公司\n\t\n0\n\t\n正常\n\t\n2023-12-27 02:17:11\n\t\n修改新增",
+      "errors": []
+    },
+    {
+      "path": "/system/license",
+      "title": "AI视频安全生产分析系统",
+      "component": "system/license/index",
+      "buttons": [
+        {
+          "text": "刷新",
+          "disabled": false
+        },
+        {
+          "text": "保存",
+          "disabled": false
+        },
+        {
+          "text": "刷新缓存",
+          "disabled": false
+        }
+      ],
+      "text": "系统参数\n统一管理系统级默认参数，首期包含前端画框显示延迟。\n刷新\n前端画框延迟(ms)\n用于统一控制视频墙与布控详情页前端画框相对视频的显示延迟，建议在 0 到 1500ms 之间调试。\n参数键名\n说明\n保存刷新缓存",
+      "errors": []
+    },
+    {
+      "path": "/monitor/online",
+      "title": "AI视频安全生产分析系统",
+      "component": "monitor/online/index",
+      "buttons": [
+        {
+          "text": "刷新",
+          "disabled": false
+        },
+        {
+          "text": "保存",
+          "disabled": false
+        },
+        {
+          "text": "刷新缓存",
+          "disabled": false
+        }
+      ],
+      "text": "系统参数\n统一管理系统级默认参数，首期包含前端画框显示延迟。\n刷新\n前端画框延迟(ms)\n用于统一控制视频墙与布控详情页前端画框相对视频的显示延迟，建议在 0 到 1500ms 之间调试。\n参数键名\n说明\n保存刷新缓存",
+      "errors": []
+    },
+    {
+      "path": "/monitor/job",
+      "title": "AI视频安全生产分析系统",
+      "component": "monitor/job/index",
+      "buttons": [
+        {
+          "text": "搜索",
+          "disabled": false
+        },
+        {
+          "text": "重置",
+          "disabled": false
+        },
+        {
+          "text": "新增",
+          "disabled": false
+        },
+        {
+          "text": "修改",
+          "disabled": true
+        },
+        {
+          "text": "删除",
+          "disabled": true
+        },
+        {
+          "text": "导出",
+          "disabled": false
+        },
+        {
+          "text": "日志",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "修改",
+          "disabled": false
+        },
+        {
+          "text": "删除",
+          "disabled": false
+        },
+        {
+          "text": "更多",
+          "disabled": false
+        },
+        {
+          "text": "修改",
+          "disabled": false
+        },
+        {
+          "text": "删除",
+          "disabled": false
+        },
+        {
+          "text": "更多",
+          "disabled": false
+        },
+        {
+          "text": "修改",
+          "disabled": false
+        },
+        {
+          "text": "删除",
+          "disabled": false
+        },
+        {
+          "text": "更多",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": true
+        },
+        {
+          "text": "",
+          "disabled": true
+        }
+      ],
+      "text": "任务名称任务组名\n任务状态\n搜索重置\n新增\n修改\n删除\n导出\n日志\n\t任务编号\t任务名称\t任务组名\t调用目标字符串\tcron执行表达式\t状态\t操作\n\t\n1\n\t\n系统默认（无参）\n\t\n默认\n\t\nryTask.ryNoParams\n\t\n0/10 * * * * ?\n\t\n\t\n修改删除更多\n\n\n\t\n2\n\t\n系统默认（有参）\n\t\n默认\n\t\nryTask.ryParams('ry')\n\t\n0/15 * * * * ?\n\t\n\t\n修改删除更多\n\n\n\t\n3\n\t\n系统默认（多参）\n\t\n默认\n\t\nryTask.ryMultipleParams('ry', true, 2000L, 316.50D, 100)\n\t\n0/20 * * * * ?\n\t\n\t\n修改删除更多\n共 3 条\n1\n前往页",
+      "errors": []
+    },
+    {
+      "path": "/monitor/druid",
+      "title": "AI视频安全生产分析系统",
+      "component": "monitor/druid/index",
+      "buttons": [
+        {
+          "text": "搜索",
+          "disabled": false
+        },
+        {
+          "text": "重置",
+          "disabled": false
+        },
+        {
+          "text": "新增",
+          "disabled": false
+        },
+        {
+          "text": "修改",
+          "disabled": true
+        },
+        {
+          "text": "删除",
+          "disabled": true
+        },
+        {
+          "text": "导出",
+          "disabled": false
+        },
+        {
+          "text": "日志",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "修改",
+          "disabled": false
+        },
+        {
+          "text": "删除",
+          "disabled": false
+        },
+        {
+          "text": "更多",
+          "disabled": false
+        },
+        {
+          "text": "修改",
+          "disabled": false
+        },
+        {
+          "text": "删除",
+          "disabled": false
+        },
+        {
+          "text": "更多",
+          "disabled": false
+        },
+        {
+          "text": "修改",
+          "disabled": false
+        },
+        {
+          "text": "删除",
+          "disabled": false
+        },
+        {
+          "text": "更多",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": true
+        },
+        {
+          "text": "",
+          "disabled": true
+        }
+      ],
+      "text": "任务名称任务组名\n任务状态\n搜索重置\n新增\n修改\n删除\n导出\n日志\n\t任务编号\t任务名称\t任务组名\t调用目标字符串\tcron执行表达式\t状态\t操作\n\t\n1\n\t\n系统默认（无参）\n\t\n默认\n\t\nryTask.ryNoParams\n\t\n0/10 * * * * ?\n\t\n\t\n修改删除更多\n\n\n\t\n2\n\t\n系统默认（有参）\n\t\n默认\n\t\nryTask.ryParams('ry')\n\t\n0/15 * * * * ?\n\t\n\t\n修改删除更多\n\n\n\t\n3\n\t\n系统默认（多参）\n\t\n默认\n\t\nryTask.ryMultipleParams('ry', true, 2000L, 316.50D, 100)\n\t\n0/20 * * * * ?\n\t\n\t\n修改删除更多\n共 3 条\n1\n前往页",
+      "errors": []
+    },
+    {
+      "path": "/monitor/server",
+      "title": "AI视频安全生产分析系统",
+      "component": "monitor/server/index",
+      "buttons": [],
+      "text": " CPU\n属性\t值\n\n核心数\n\t\n\n用户使用率\n\t\n\n系统使用率\n\t\n\n当前空闲率\n\t\n 内存\n属性\t内存\tJVM\n\n总内存\n\t\t\n\n已用内存\n\t\t\n\n剩余内存\n\t\t\n\n使用率\n\t\t\n 服务器信息\n服务器名称\n\t\t\n操作系统\n\t\n\n服务器IP\n\t\t\n系统架构\n\t\n Java虚拟机信息\nJava名称\n\t\t\nJava版本\n\t\n\n启动时间\n\t\t\n运行时长\n\t\n\n安装路径\n\t\n\n项目路径\n\t\n\n运行参数\n\t\n 磁盘状态\n盘符路径\t文件系统\t盘符类型\t总大小\t可用大小\t已用大小\t已用百分比",
+      "errors": []
+    },
+    {
+      "path": "/monitor/cache",
+      "title": "AI视频安全生产分析系统",
+      "component": "monitor/cache/index",
+      "buttons": [],
+      "text": " CPU\n属性\t值\n\n核心数\n\t\n\n用户使用率\n\t\n\n系统使用率\n\t\n\n当前空闲率\n\t\n 内存\n属性\t内存\tJVM\n\n总内存\n\t\t\n\n已用内存\n\t\t\n\n剩余内存\n\t\t\n\n使用率\n\t\t\n 服务器信息\n服务器名称\n\t\t\n操作系统\n\t\n\n服务器IP\n\t\t\n系统架构\n\t\n Java虚拟机信息\nJava名称\n\t\t\nJava版本\n\t\n\n启动时间\n\t\t\n运行时长\n\t\n\n安装路径\n\t\n\n项目路径\n\t\n\n运行参数\n\t\n 磁盘状态\n盘符路径\t文件系统\t盘符类型\t总大小\t可用大小\t已用大小\t已用百分比",
+      "errors": []
+    },
+    {
+      "path": "/monitor/cacheList",
+      "title": "AI视频安全生产分析系统",
+      "component": "monitor/cache/list",
+      "buttons": [
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "清理全部",
+          "disabled": false
+        }
+      ],
+      "text": " 缓存列表\n序号\t缓存名称\t备注\t操作\n1\n\t\nlogin_tokens\n\t\n用户信息\n\t\n\n\n2\n\t\nsys_config\n\t\n配置信息\n\t\n\n\n3\n\t\nsys_dict\n\t\n数据字典\n\t\n\n\n4\n\t\ncaptcha_codes\n\t\n验证码\n\t\n\n\n5\n\t\nrepeat_submit\n\t\n防重提交\n\t\n\n\n6\n\t\nrate_limit\n\t\n限流处理\n\t\n\n\n7\n\t\npwd_err_cnt\n\t\n密码错误次数\n\t\n 键名列表\n序号\t缓存键名\t操作\n暂无数据\n 缓存内容\n清理全部\n缓存名称:\n缓存键名:\n缓存内容:",
+      "errors": []
+    },
+    {
+      "path": "/monitor/media",
+      "title": "AI视频安全生产分析系统",
+      "component": "monitor/media/index",
+      "buttons": [
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "清理全部",
+          "disabled": false
+        }
+      ],
+      "text": " 缓存列表\n序号\t缓存名称\t备注\t操作\n1\n\t\nlogin_tokens\n\t\n用户信息\n\t\n\n\n2\n\t\nsys_config\n\t\n配置信息\n\t\n\n\n3\n\t\nsys_dict\n\t\n数据字典\n\t\n\n\n4\n\t\ncaptcha_codes\n\t\n验证码\n\t\n\n\n5\n\t\nrepeat_submit\n\t\n防重提交\n\t\n\n\n6\n\t\nrate_limit\n\t\n限流处理\n\t\n\n\n7\n\t\npwd_err_cnt\n\t\n密码错误次数\n\t\n 键名列表\n序号\t缓存键名\t操作\n暂无数据\n 缓存内容\n清理全部\n缓存名称:\n缓存键名:\n缓存内容:",
+      "errors": []
+    },
+    {
+      "path": "/monitor/algorithm",
+      "title": "AI视频安全生产分析系统",
+      "component": "monitor/algorithm/index",
+      "buttons": [
+        {
+          "text": "刷新",
+          "disabled": false
+        }
+      ],
+      "text": "服务器总数\n1\n连接成功\n0\n连接失败\n1\n任务总数\n0\n 算法服务器列表\n刷新\n编号\t视频流\t算法\t部署ID\t任务名称\t设备ID\t频率（实际/目标）\t添加时间\t是否推流\n暂无数据",
+      "errors": []
+    },
+    {
+      "path": "/tool/build",
+      "title": "AI视频安全生产分析系统",
+      "component": "tool/build/index",
+      "buttons": [
+        {
+          "text": "刷新",
+          "disabled": false
+        }
+      ],
+      "text": "服务器总数\n1\n连接成功\n0\n连接失败\n1\n任务总数\n0\n 算法服务器列表\n刷新\n编号\t视频流\t算法\t部署ID\t任务名称\t设备ID\t频率（实际/目标）\t添加时间\t是否推流\n暂无数据",
+      "errors": []
+    },
+    {
+      "path": "/tool/gen",
+      "title": "AI视频安全生产分析系统",
+      "component": "tool/gen/index",
+      "buttons": [
+        {
+          "text": "搜索",
+          "disabled": false
+        },
+        {
+          "text": "重置",
+          "disabled": false
+        },
+        {
+          "text": "生成",
+          "disabled": false
+        },
+        {
+          "text": "导入",
+          "disabled": false
+        },
+        {
+          "text": "修改",
+          "disabled": true
+        },
+        {
+          "text": "删除",
+          "disabled": true
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        }
+      ],
+      "text": "表名称表描述创建时间\n-\n搜索重置\n生成\n导入\n修改\n删除\n\t序号\t表名称\t表描述\t实体\t创建时间\t更新时间\t操作\n暂无数据",
+      "errors": []
+    },
+    {
+      "path": "/tool/swagger",
+      "title": "AI视频安全生产分析系统",
+      "component": "tool/swagger/index",
+      "buttons": [
+        {
+          "text": "搜索",
+          "disabled": false
+        },
+        {
+          "text": "重置",
+          "disabled": false
+        },
+        {
+          "text": "生成",
+          "disabled": false
+        },
+        {
+          "text": "导入",
+          "disabled": false
+        },
+        {
+          "text": "修改",
+          "disabled": true
+        },
+        {
+          "text": "删除",
+          "disabled": true
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        }
+      ],
+      "text": "表名称表描述创建时间\n-\n搜索重置\n生成\n导入\n修改\n删除\n\t序号\t表名称\t表描述\t实体\t创建时间\t更新时间\t操作\n暂无数据",
+      "errors": []
+    },
+    {
+      "path": "/warning/warning",
+      "title": "AI视频安全生产分析系统",
+      "component": "warning/index",
+      "buttons": [
+        {
+          "text": "睡岗快捷筛选",
+          "disabled": false
+        },
+        {
+          "text": "导出",
+          "disabled": false
+        }
+      ],
+      "text": "设备通道名称报警类型\n 睡岗快捷筛选处理状态\n所属队组\n报警时间\n-\n导出\n\t序号\t报警类型\t设备类型\t设备通道名称\t组织名称\t所属队组\t报警时间\t规则信息\t状态\tAI复核\t操作\n暂无数据",
+      "errors": []
+    },
+    {
+      "path": "/warning/wubao",
+      "title": "AI视频安全生产分析系统",
+      "component": "warning/wubao",
+      "buttons": [
+        {
+          "text": "睡岗快捷筛选",
+          "disabled": false
+        },
+        {
+          "text": "导出",
+          "disabled": false
+        }
+      ],
+      "text": "设备通道名称报警类型\n 睡岗快捷筛选处理状态\n所属队组\n报警时间\n-\n导出\n\t序号\t报警类型\t设备类型\t设备通道名称\t组织名称\t所属队组\t报警时间\t规则信息\t状态\tAI复核\t操作\n暂无数据",
+      "errors": []
+    },
+    {
+      "path": "/device/manage",
+      "title": "AI视频安全生产分析系统",
+      "component": "device/manage",
+      "buttons": [
+        {
+          "text": "搜索",
+          "disabled": false
+        },
+        {
+          "text": "重置",
+          "disabled": false
+        },
+        {
+          "text": "新增",
+          "disabled": false
+        },
+        {
+          "text": "修改",
+          "disabled": true
+        },
+        {
+          "text": "删除",
+          "disabled": true
+        },
+        {
+          "text": "同步国标设备",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "启动监控",
+          "disabled": false
+        },
+        {
+          "text": "停止监控",
+          "disabled": false
+        },
+        {
+          "text": "预览视频",
+          "disabled": false
+        },
+        {
+          "text": "历史报警",
+          "disabled": false
+        },
+        {
+          "text": "修改",
+          "disabled": false
+        },
+        {
+          "text": "删除",
+          "disabled": false
+        },
+        {
+          "text": "启动监控",
+          "disabled": false
+        },
+        {
+          "text": "停止监控",
+          "disabled": false
+        },
+        {
+          "text": "预览视频",
+          "disabled": false
+        },
+        {
+          "text": "历史报警",
+          "disabled": false
+        },
+        {
+          "text": "修改",
+          "disabled": false
+        },
+        {
+          "text": "删除",
+          "disabled": false
+        },
+        {
+          "text": "启动监控",
+          "disabled": false
+        },
+        {
+          "text": "停止监控",
+          "disabled": false
+        },
+        {
+          "text": "预览视频",
+          "disabled": false
+        },
+        {
+          "text": "历史报警",
+          "disabled": false
+        },
+        {
+          "text": "修改",
+          "disabled": false
+        },
+        {
+          "text": "删除",
+          "disabled": false
+        },
+        {
+          "text": "启动监控",
+          "disabled": false
+        },
+        {
+          "text": "停止监控",
+          "disabled": false
+        },
+        {
+          "text": "预览视频",
+          "disabled": false
+        },
+        {
+          "text": "历史报警",
+          "disabled": false
+        },
+        {
+          "text": "修改",
+          "disabled": false
+        },
+        {
+          "text": "删除",
+          "disabled": false
+        },
+        {
+          "text": "启动监控",
+          "disabled": false
+        },
+        {
+          "text": "停止监控",
+          "disabled": false
+        },
+        {
+          "text": "预览视频",
+          "disabled": false
+        },
+        {
+          "text": "历史报警",
+          "disabled": false
+        },
+        {
+          "text": "修改",
+          "disabled": false
+        },
+        {
+          "text": "删除",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": true
+        },
+        {
+          "text": "",
+          "disabled": true
+        }
+      ],
+      "text": "组织名称\n设备编码设备名称接入类型\n搜索重置\n新增\n修改\n删除\n同步国标设备\n\t设备编码\t设备名称\t接入类型\t媒体源\t视频流地址\tIP地址\t端口\t组织编码\t组织名称\t位置\t在线状态\t\n\t\ndemo-park-gate-01\n\t\n演示-园区入口\n\t\nRTSP\n\t\n直连\n\t\nrtsp://127.0.0.1:9994/live/mock-camera\n\t\n127.0.0.1\n\t\n9994\n\t\n10\n\t\n总公司\n\t\n园区主入口\n\t\n在线/启用\n\t\n\n\t\ndev_mock_camera_001\n\t\n模拟RTSP摄像头\n\t\nRTSP\n\t\n直连\n\t\nrtsp://127.0.0.1:9994/live/mock-camera\n\t\n127.0.0.1\n\t\n9994\n\t\n00000000000000000000000000000000\n\t\n默认组织\n\t\n验收测试点\n\t\n在线/启用\n\t\n\n\t\ngb-34020000001320000001-34020000001310000001\n\t\n主井口-国标01\n\t\n国标\n\t\n平台\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n在线/启用\n\t\n\n\t\ngb-34020000001320000001-34020000001310000002\n\t\n副井口-国标02(幽灵流)\n\t\n国标\n\t\n平台\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n离线/停用\n\t\n\n\t\noffice_sit\n\t\nPexels俯视躺卧-0903\n\t\nRTSP\n\t\n直连\n\t\nrtsp://127.0.0.1:9994/live/office_sit\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\t\t\t\t\t\t\t\t\t\t\t操作\n\t\t\t\t\t\t\t\t\t\t\t\t\n启动监控停止监控预览视频历史报警修改删除\n\n\t\t\t\t\t\t\t\t\t\t\t\t\n启动监控停止监控预览视频历史报警修改删除\n\n\t\t\t\t\t\t\t\t\t\t\t\t\n启动监控停止监控预览视频历史报警修改删除\n\n\t\t\t\t\t\t\t\t\t\t\t\t\n启动监控停止监控预览视频历史报警修改删除\n\n\t\t\t\t\t\t\t\t\t\t\t\t\n启动监控停止监控预览视频历史报警修改删除\n共 5 条\n1\n前往页",
+      "errors": []
+    },
+    {
+      "path": "/device/lixian",
+      "title": "AI视频安全生产分析系统",
+      "component": "device/lixian",
+      "buttons": [
+        {
+          "text": "搜索",
+          "disabled": false
+        },
+        {
+          "text": "重置",
+          "disabled": false
+        },
+        {
+          "text": "新增",
+          "disabled": false
+        },
+        {
+          "text": "修改",
+          "disabled": true
+        },
+        {
+          "text": "删除",
+          "disabled": true
+        },
+        {
+          "text": "同步国标设备",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "启动监控",
+          "disabled": false
+        },
+        {
+          "text": "停止监控",
+          "disabled": false
+        },
+        {
+          "text": "预览视频",
+          "disabled": false
+        },
+        {
+          "text": "历史报警",
+          "disabled": false
+        },
+        {
+          "text": "修改",
+          "disabled": false
+        },
+        {
+          "text": "删除",
+          "disabled": false
+        },
+        {
+          "text": "启动监控",
+          "disabled": false
+        },
+        {
+          "text": "停止监控",
+          "disabled": false
+        },
+        {
+          "text": "预览视频",
+          "disabled": false
+        },
+        {
+          "text": "历史报警",
+          "disabled": false
+        },
+        {
+          "text": "修改",
+          "disabled": false
+        },
+        {
+          "text": "删除",
+          "disabled": false
+        },
+        {
+          "text": "启动监控",
+          "disabled": false
+        },
+        {
+          "text": "停止监控",
+          "disabled": false
+        },
+        {
+          "text": "预览视频",
+          "disabled": false
+        },
+        {
+          "text": "历史报警",
+          "disabled": false
+        },
+        {
+          "text": "修改",
+          "disabled": false
+        },
+        {
+          "text": "删除",
+          "disabled": false
+        },
+        {
+          "text": "启动监控",
+          "disabled": false
+        },
+        {
+          "text": "停止监控",
+          "disabled": false
+        },
+        {
+          "text": "预览视频",
+          "disabled": false
+        },
+        {
+          "text": "历史报警",
+          "disabled": false
+        },
+        {
+          "text": "修改",
+          "disabled": false
+        },
+        {
+          "text": "删除",
+          "disabled": false
+        },
+        {
+          "text": "启动监控",
+          "disabled": false
+        },
+        {
+          "text": "停止监控",
+          "disabled": false
+        },
+        {
+          "text": "预览视频",
+          "disabled": false
+        },
+        {
+          "text": "历史报警",
+          "disabled": false
+        },
+        {
+          "text": "修改",
+          "disabled": false
+        },
+        {
+          "text": "删除",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": true
+        },
+        {
+          "text": "",
+          "disabled": true
+        }
+      ],
+      "text": "组织名称\n设备编码设备名称接入类型\n搜索重置\n新增\n修改\n删除\n同步国标设备\n\t设备编码\t设备名称\t接入类型\t媒体源\t视频流地址\tIP地址\t端口\t组织编码\t组织名称\t位置\t在线状态\t\n\t\ndemo-park-gate-01\n\t\n演示-园区入口\n\t\nRTSP\n\t\n直连\n\t\nrtsp://127.0.0.1:9994/live/mock-camera\n\t\n127.0.0.1\n\t\n9994\n\t\n10\n\t\n总公司\n\t\n园区主入口\n\t\n在线/启用\n\t\n\n\t\ndev_mock_camera_001\n\t\n模拟RTSP摄像头\n\t\nRTSP\n\t\n直连\n\t\nrtsp://127.0.0.1:9994/live/mock-camera\n\t\n127.0.0.1\n\t\n9994\n\t\n00000000000000000000000000000000\n\t\n默认组织\n\t\n验收测试点\n\t\n在线/启用\n\t\n\n\t\ngb-34020000001320000001-34020000001310000001\n\t\n主井口-国标01\n\t\n国标\n\t\n平台\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n在线/启用\n\t\n\n\t\ngb-34020000001320000001-34020000001310000002\n\t\n副井口-国标02(幽灵流)\n\t\n国标\n\t\n平台\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n离线/停用\n\t\n\n\t\noffice_sit\n\t\nPexels俯视躺卧-0903\n\t\nRTSP\n\t\n直连\n\t\nrtsp://127.0.0.1:9994/live/office_sit\n\t\n\t\n\t\n\t\n\t\n\t\n\t\n\t\t\t\t\t\t\t\t\t\t\t\t操作\n\t\t\t\t\t\t\t\t\t\t\t\t\n启动监控停止监控预览视频历史报警修改删除\n\n\t\t\t\t\t\t\t\t\t\t\t\t\n启动监控停止监控预览视频历史报警修改删除\n\n\t\t\t\t\t\t\t\t\t\t\t\t\n启动监控停止监控预览视频历史报警修改删除\n\n\t\t\t\t\t\t\t\t\t\t\t\t\n启动监控停止监控预览视频历史报警修改删除\n\n\t\t\t\t\t\t\t\t\t\t\t\t\n启动监控停止监控预览视频历史报警修改删除\n共 5 条\n1\n前往页",
+      "errors": []
+    },
+    {
+      "path": "/device/realtime",
+      "title": "AI视频安全生产分析系统",
+      "component": "device/realtime",
+      "buttons": [
+        {
+          "text": "搜索",
+          "disabled": false
+        },
+        {
+          "text": "重置",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "启动监控",
+          "disabled": false
+        },
+        {
+          "text": "停止监控",
+          "disabled": false
+        },
+        {
+          "text": "预览视频",
+          "disabled": false
+        },
+        {
+          "text": "加入监控墙",
+          "disabled": false
+        },
+        {
+          "text": "启动监控",
+          "disabled": false
+        },
+        {
+          "text": "停止监控",
+          "disabled": false
+        },
+        {
+          "text": "预览视频",
+          "disabled": false
+        },
+        {
+          "text": "加入监控墙",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": true
+        },
+        {
+          "text": "",
+          "disabled": true
+        }
+      ],
+      "text": "组织名称\n设备编码设备名称接入类型\n搜索重置\n设备名称\t设备编码\tIP地址\t端口号\t接入类型\t设备类型\t资源类型\t通道编码\t状态\t监控状态\t\n模拟RTSP摄像头\n\t\ndev_mock_camera_001\n\t\n127.0.0.1\n\t\n9994\n\t\nRTSP\n\t\n未知类型\n\t\n未知类型\n\t\n验收测试点\n\t\n在线/启用\n\t\n运行中\n\t\n\nPexels俯视躺卧-0903\n\t\noffice_sit\n\t\n\t\n\t\nRTSP\n\t\n未知类型\n\t\n未知类型\n\t\n\t\n未知状态\n\t\n运行中\n\t\n\t\t\t\t\t\t\t\t\t\t操作\n\t\t\t\t\t\t\t\t\t\t\n启动监控停止监控预览视频加入监控墙\n\n\t\t\t\t\t\t\t\t\t\t\n启动监控停止监控预览视频加入监控墙\n共 2 条\n1\n前往页",
+      "errors": []
+    },
+    {
+      "path": "/type/type",
+      "title": "AI视频安全生产分析系统",
+      "component": "warning/type",
+      "buttons": [
+        {
+          "text": "搜索",
+          "disabled": false
+        },
+        {
+          "text": "重置",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": false
+        },
+        {
+          "text": "启动监控",
+          "disabled": false
+        },
+        {
+          "text": "停止监控",
+          "disabled": false
+        },
+        {
+          "text": "预览视频",
+          "disabled": false
+        },
+        {
+          "text": "加入监控墙",
+          "disabled": false
+        },
+        {
+          "text": "启动监控",
+          "disabled": false
+        },
+        {
+          "text": "停止监控",
+          "disabled": false
+        },
+        {
+          "text": "预览视频",
+          "disabled": false
+        },
+        {
+          "text": "加入监控墙",
+          "disabled": false
+        },
+        {
+          "text": "",
+          "disabled": true
+        },
+        {
+          "text": "",
+          "disabled": true
+        }
+      ],
+      "text": "组织名称\n设备编码设备名称接入类型\n搜索重置\n设备名称\t设备编码\tIP地址\t端口号\t接入类型\t设备类型\t资源类型\t通道编码\t状态\t监控状态\t\n模拟RTSP摄像头\n\t\ndev_mock_camera_001\n\t\n127.0.0.1\n\t\n9994\n\t\nRTSP\n\t\n未知类型\n\t\n未知类型\n\t\n验收测试点\n\t\n在线/启用\n\t\n运行中\n\t\n\nPexels俯视躺卧-0903\n\t\noffice_sit\n\t\n\t\n\t\nRTSP\n\t\n未知类型\n\t\n未知类型\n\t\n\t\n未知状态\n\t\n运行中\n\t\n\t\t\t\t\t\t\t\t\t\t操作\n\t\t\t\t\t\t\t\t\t\t\n启动监控停止监控预览视频加入监控墙\n\n\t\t\t\t\t\t\t\t\t\t\n启动监控停止监控预览视频加入监控墙\n共 2 条\n1\n前往页",
+      "errors": []
+    },
+    {
+      "path": "/handle/handle",
+      "title": "AI视频安全生产分析系统",
+      "component": "warning/test",
+      "buttons": [],
+      "text": "设备通道名称报警类型\n所属队组\n报警时间\n-\n\t序号\t报警类型\t设备通道名称\t组织名称\t所属队组\t报警时间\t状态\t操作\n暂无数据",
+      "errors": []
+    },
+    {
+      "path": "/deployment/index",
+      "title": "AI视频安全生产分析系统",
+      "component": "deployment/index",
+      "buttons": [],
+      "text": "设备通道名称报警类型\n所属队组\n报警时间\n-\n\t序号\t报警类型\t设备通道名称\t组织名称\t所属队组\t报警时间\t状态\t操作\n暂无数据",
+      "errors": []
+    },
+    {
+      "path": "/deployment/add",
+      "title": "AI视频安全生产分析系统",
+      "component": "deployment/add",
+      "buttons": [
+        {
+          "text": "区域对齐",
+          "disabled": false
+        },
+        {
+          "text": "清空当前区域",
+          "disabled": false
+        },
+        {
+          "text": "新增区域",
+          "disabled": false
+        },
+        {
+          "text": "设为主区域",
+          "disabled": true
+        },
+        {
+          "text": "删除当前区域",
+          "disabled": true
+        },
+        {
+          "text": "删除",
+          "disabled": true
+        },
+        {
+          "text": "添加算法",
+          "disabled": false
+        },
+        {
+          "text": "新增规则",
+          "disabled": false
+        },
+        {
+          "text": "新建布控",
+          "disabled": false
+        },
+        {
+          "text": "保存并创建",
+          "disabled": false
+        }
+      ],
+      "text": "布控管理\n实时流预览与区域绘制\n行为识别规则\n暂无监控规则\n最近事件\n推流模式下等待行为事件推送\n区域\n线段\n区域对齐\n清空当前区域\n新增区域\n设为主区域\n删除当前区域\n点位数：0\n未闭合\n统一几何配置：0 区域 / 0 线段\n主区域：未设置\n区域模式：可直接点击画布创建区域，或先新增区域后再绘制\n布控配置\n任务名称\n0/64\n选择设备\n算法配置\n算法 1\n删除\nperson\n抽帧率\n置信度\nNMS\n添加算法\n请选择第 1 个算法的检测目标\n行为规则\n可配置跨线、进区、出区、停留、低速、徘徊、睡觉、缺席、数量阈值、占用、区域运动、定向通行、逆向通行、目标接近、目标远离；区域类规则可绑定任一区域\n新增规则\n暂无行为规则，添加后会随 geometryConfig 一并保存\n是否推流\n是\n否\n录像引擎\n算法服务器\n媒体服务器\n报警间隔(秒)\n启用AI复核\n是\n否\n备注\n0/255\n新建布控事件编排（可选）保存并创建",
+      "errors": []
+    }
+  ]
+}
