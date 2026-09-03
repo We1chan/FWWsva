@@ -12,12 +12,20 @@ bash -n "$repo_dir/install_source.sh"
 bash -n "$launcher"
 bash -n "$health"
 
-grep -q 'EASYSVA_BACKEND_REF:-v1.2.8' "$repo_dir/install_source.sh"
+grep -q 'EASYSVA_MEDIA_SERVER_REF:-95eda58fcf3e8ed401d404f825cfbc434362af34' "$repo_dir/install_source.sh"
+grep -q 'EASYSVA_SERVER_REF:-8d51c1415113810f7d7c507c39999abbf8da3c3a' "$repo_dir/install_source.sh"
+grep -q 'EASYSVA_BACKEND_REF:-740b7d89b82eceb020167026f2f7f238eabcd718' "$repo_dir/install_source.sh"
+grep -q 'EASYSVA_WEB_REF:-95334691f215a864fd599eaff58c82e2acce50d0' "$repo_dir/install_source.sh"
+grep -q 'git -C "$target_dir" fetch --depth=1 origin "$ref"' "$repo_dir/install_source.sh"
 grep -q 'java-17-openjdk-amd64' "$repo_dir/deploy/systemd/easysva-backend.service"
 grep -q '001_extend_h_device.sql' "$repo_dir/install_source.sh"
 grep -q '20260901_gb28181_business.sql' "$repo_dir/install_source.sh"
 grep -q '002_add_gb_stream_url.sql' "$repo_dir/install_source.sh"
 grep -q 'easysva-gb-media easysva-wvp' "$repo_dir/install_source.sh"
+grep -q 'EASYSVA_GB_ENV_FILE:-/etc/easySVA/gb28181.env' "$health"
+grep -q 'EASYSVA_WEB_HEALTH_URL:-http://127.0.0.1/' "$health"
+grep -q -- '--data-urlencode "secret=$zlm_secret"' "$health"
+grep -q 'check_tcp "原 RTSP" 127.0.0.1 9994' "$health"
 
 if EASYSVA_WVP_DB_NAME='invalid-name' bash "$repo_dir/install_source.sh" \
     > /dev/null 2>&1; then

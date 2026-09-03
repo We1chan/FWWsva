@@ -9,7 +9,12 @@ set -e -o pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 LIB_ARCHIVE="${EASYSVA_LIB_ARCHIVE:-/opt/easySVA-lib.zip}"
 REPO_BASE="${EASYSVA_REPO_BASE:-https://github.com/We1chan}"
-BACKEND_REF="${EASYSVA_BACKEND_REF:-v1.2.8}"
+# Pin the audited cross-repository baseline so every machine builds the same code.
+# The collaboration backend does not publish the old upstream v1.2.8 tag.
+MEDIA_SERVER_REF="${EASYSVA_MEDIA_SERVER_REF:-95eda58fcf3e8ed401d404f825cfbc434362af34}"
+ANALYZER_REF="${EASYSVA_SERVER_REF:-8d51c1415113810f7d7c507c39999abbf8da3c3a}"
+BACKEND_REF="${EASYSVA_BACKEND_REF:-740b7d89b82eceb020167026f2f7f238eabcd718}"
+WEB_REF="${EASYSVA_WEB_REF:-95334691f215a864fd599eaff58c82e2acce50d0}"
 WVP_REPO="${EASYSVA_WVP_REPO:-https://github.com/648540858/wvp-GB28181-pro.git}"
 WVP_REF="${EASYSVA_WVP_REF:-fb45787da01cb4f33a0b1dfaa613becf67391c17}"
 WVP_DB_NAME="${EASYSVA_WVP_DB_NAME:-wvp}"
@@ -19,6 +24,21 @@ GB28181_SIP_PASSWORD="${EASYSVA_GB28181_SIP_PASSWORD:-admin123}"
 GB28181_ZLM_SECRET="${EASYSVA_GB28181_ZLM_SECRET:-easySVA.GB28181.ZLM}"
 GB28181_HOST_IP="${EASYSVA_GB28181_HOST_IP:-}"
 SQL_FILE="$SCRIPT_DIR/data_20250520.sql"
+
+checkout_repo_at_ref() {
+    local repo_url="$1"
+    local target_dir="$2"
+    local ref="$3"
+    if [[ -e "$target_dir" ]]; then
+        echo "目标目录已存在，拒绝覆盖: $target_dir" >&2
+        exit 1
+    fi
+    git init -q "$target_dir"
+    git -C "$target_dir" remote add origin "$repo_url"
+    # Direct fetch accepts an immutable commit as well as an explicit branch/tag.
+    git -C "$target_dir" fetch --depth=1 origin "$ref"
+    git -C "$target_dir" checkout --detach FETCH_HEAD
+}
 
 if [[ ! "$WVP_DB_NAME" =~ ^[A-Za-z0-9_]+$ ]] ||
    [[ ! "$WVP_DB_USERNAME" =~ ^[A-Za-z0-9_]+$ ]]; then
@@ -71,7 +91,10 @@ echo "                 "
 echo "欢迎试用easySVA的源码编译脚本"
 echo "推荐在Ubuntu 22.04系统上安装"
 echo "源码仓库: $REPO_BASE"
+echo "媒体服务版本: $MEDIA_SERVER_REF"
+echo "分析器版本: $ANALYZER_REF"
 echo "后端版本: $BACKEND_REF"
+echo "前端版本: $WEB_REF"
 echo "WVP版本: $WVP_REF"
 echo "依赖包: $LIB_ARCHIVE"
 read -p "请sudo -s切换为root用户后再进行安装，输入y/Y继续执行脚本: " answer
@@ -352,7 +375,8 @@ make -j$(($(nproc)>6?6:$(nproc)))
 make install
 
 
-git clone --depth=1 "$REPO_BASE/SVA-mediaServer.git" /opt/SVA/SVA-mediaServer
+checkout_repo_at_ref "$REPO_BASE/SVA-mediaServer.git" \
+    /opt/SVA/SVA-mediaServer "$MEDIA_SERVER_REF"
 cd /opt/SVA/SVA-mediaServer
 
 mkdir build && cd build
@@ -370,7 +394,8 @@ cp /opt/SVA/SVA-mediaServer/conf/config.ini /opt/SVA/SVA-mediaServer/release/lin
 echo "编译AI分析器Analyzer"
 sleep 2
 
-git clone --depth=1 "$REPO_BASE/SVA-server.git" /opt/SVA/SVA-server/
+checkout_repo_at_ref "$REPO_BASE/SVA-server.git" \
+    /opt/SVA/SVA-server "$ANALYZER_REF"
 
 # CPU版本始终编译，作为自动回退路径。
 echo "编译CPU版本的Analyzer"
@@ -435,7 +460,8 @@ mysql -uroot -peasySVA.EZ easySVA < "$SQL_FILE"
 
 
 
-git clone --depth=1 --branch "$BACKEND_REF" "$REPO_BASE/SVA-backend.git" /opt/SVA/SVA-backend
+checkout_repo_at_ref "$REPO_BASE/SVA-backend.git" \
+    /opt/SVA/SVA-backend "$BACKEND_REF"
 cd /opt/SVA/SVA-backend
 JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 \
 PATH="/usr/lib/jvm/java-17-openjdk-amd64/bin:$PATH" \
@@ -443,12 +469,8 @@ PATH="/usr/lib/jvm/java-17-openjdk-amd64/bin:$PATH" \
 
 # WVP 固定到已验收提交，避免外部依赖升级改变 API 响应结构或 SIP 行为。
 echo "编译GB28181信令服务WVP"
-mkdir -p /opt/SVA/wvp-GB28181-pro
+checkout_repo_at_ref "$WVP_REPO" /opt/SVA/wvp-GB28181-pro "$WVP_REF"
 cd /opt/SVA/wvp-GB28181-pro
-git init
-git remote add origin "$WVP_REPO"
-git fetch --depth=1 origin "$WVP_REF"
-git checkout --detach FETCH_HEAD
 
 JAVA_HOME=/usr/lib/jvm/java-21-openjdk-amd64 \
 PATH="/usr/lib/jvm/java-21-openjdk-amd64/bin:$PATH" \
@@ -479,7 +501,7 @@ apt install -y nodejs
 
 #前端编译
 #用户名为  admin/admin123
-git clone --depth=1 "$REPO_BASE/SVA-web.git" /var/www/SVA-web
+checkout_repo_at_ref "$REPO_BASE/SVA-web.git" /var/www/SVA-web "$WEB_REF"
 cd /var/www/SVA-web
 npm config set registry https://registry.npmmirror.com/
 npm install
