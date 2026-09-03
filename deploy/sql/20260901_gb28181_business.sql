@@ -53,6 +53,13 @@ SET @ddl = IF((SELECT COUNT(*) FROM information_schema.columns WHERE table_schem
     'ALTER TABLE h_device ADD COLUMN sync_source varchar(32) NULL COMMENT ''同步来源: GB28181目录/manual'' AFTER last_seen_at', 'SELECT 1');
 PREPARE s6 FROM @ddl; EXECUTE s6; DEALLOCATE PREPARE s6;
 
+-- Existing WVP-synchronized rows predate device_type. ALTER TABLE fills the new
+-- NOT NULL column with its RTSP default, so restore their actual access type.
+UPDATE h_device
+SET device_type = 'GB28181'
+WHERE UPPER(stream_source_type) = 'GB28181'
+  AND device_type <> 'GB28181';
+
 -- upsertGbDevice relies on a unique ape_id. Add it only when no duplicate exists so
 -- existing RTSP rows never block the migration.
 SET @dup_ape = (SELECT COUNT(*) FROM (SELECT ape_id FROM h_device GROUP BY ape_id HAVING COUNT(*) > 1) t);
