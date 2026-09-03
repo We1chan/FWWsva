@@ -207,3 +207,13 @@ mvn -pl ruoyi-admin -am test -DskipITs -q
 ### 浏览器检查说明
 
 当前为无头环境，未抓取桌面/手机首页与设备/告警管理页截图；1440/1024/390 三档响应式、焦点可见与 reduced-motion 已在 CSS 中实现并以代码审查保证。建议在有图形界面的部署预览中目视复核挂牌公示跳转与组织筛选交互。
+
+### Phase 5 独立审查结论（收尾复核）
+
+逐文件复核 `db33b8a`（首页重整）与 `ac22ff5`（设备监控职责拆分），**未发现可复现的行为回归**：
+
+- **后端响应契约逐字节一致**：旧 `buildMonitorActionResult` 以 `LinkedHashMap{success,shortMessage,data}` 经 `AjaxResult.success` 包装；新 `DeviceMonitorService` 返回的 `DeviceMonitorResult` 字段名完全相同，HTTP 响应 JSON 形状一致。前端 `device/manage.vue`、`device/index.vue` 仍按 `response.data.success / .shortMessage / .data` 解析，无需改动。
+- **错误提示映射等价且更稳健**：`resolveMessage` 与旧 `resolveMonitorFailMessage` 的四类中文字符串（拉流失败/推送失败/已启动过/超时）完全一致；新实现改 `toLowerCase(Locale.ROOT)`，规避非 ROOT locale（如土耳其语）对 `i` 的大小写误判。
+- **已知微小差异（非阻塞）**：成功分支 `ok()` 将 `shortMessage` 置 `null`，前端回退到各自默认成功文案（旧版为「启动/停止监控成功」）；消息 `type` 仍为 `success`，交互无影响。
+- **前端 ECharts 生命周期修复落地**：`hazard-trend.vue` / `hazard-distribution.vue` 已改用 `useChart` 复用实例、`beforeDestroy` 中 `disposeChart` 释放，移除泄漏的 `window.resize` 监听；`home/index.vue` 的 `reqToken` 防乱序、`handleClick(row)` 按行 `id`（= `w_id`）跳转逻辑经单测覆盖通过。
+- 三仓库工作区干净，`HEAD` 与远程 `refs/heads/master` 经 `git ls-remote` 核对一致；实施记录与本次结论均已随 `FWWsva` 推送。
