@@ -27,7 +27,7 @@ NVIDIA GPU 电脑；GPU 只影响 AI 分析器，不影响本指南的国标链�
   `sleep_duty` 协议兼容和姿态+眼部睡岗状态机。
 - SVA-backend：`a19b859ba37fd90d83a30f9fe7fc90666d9d3d05`，包含完整 GB28181
   数据模型、同步、点播、告警映射及 Analyzer 重启后的布控自动恢复。
-- SVA-web：`39197abe6da0f5e39ab934af9967fe77546bc6a7`，包含 GB28181
+- SVA-web：`98607abc3f598ba5e41a8511d184e1f2899d79e4`，包含 GB28181
   设备管理、同源媒体地址转换、布控预览和大屏算法流播放修复。
 - wvp-GB28181-pro：`fb45787da01cb4f33a0b1dfaa613becf67391c17`。
 - 软件相机 sbgb28181：`1da9bc62134d4cb1fd4374f733583fb5997c3f0a`。
@@ -158,6 +158,20 @@ sudo easysva-gb-health
 回滚应用版本前应恢复与该版本匹配的数据库备份。不要手工删除新增列，也不要用初始化
 SQL 覆盖已经有业务数据的数据库。
 
+### 4.1 拉了新前端却仍看到旧设备页面
+
+路由菜单保存在数据库中，不会随 `git pull` 自动变更。先查询：
+
+```sql
+SELECT menu_id, menu_name, path, component
+FROM sys_menu WHERE component IN ('device/index', 'device/manage');
+```
+
+最新设备管理页面为 `device/manage`，包括接入类型、国标同步、视频状态和
+「启动视频源/停止视频源」。若当前菜单仍为 `device/index` 且明确需要切换新版，先备份，
+再仅按查询得到的 `menu_id` 修改 `component='device/manage'`，保留原 `path`、父菜单和
+权限字段。退出重新登录（或刷新以重新加载路由）后验证。不要批量覆盖整张 `sys_menu`。
+
 ## 5. 不同电脑必须检查的配置
 
 ### 5.1 Java 与数据库
@@ -223,6 +237,23 @@ HTTP/WS 时会受到 mixed content 限制，应统一代理为同源 HTTPS/WSS�
 这四类同源代理。开发环境可通过 `VUE_APP_BACKEND_URL`、`VUE_APP_MEDIA_URL`、
 `VUE_APP_GB_MEDIA_URL` 覆盖服务端目标；修改后重启开发服务器。不要把浏览器上的
 `localhost` 当成远端部署机 IP。同一台机器上的代理目标可以是回环地址，浏览器只访问站点域名。
+
+如果 WVP 返回 `ws://某个局域网IP:9996/rtp/...live.flv`，且浏览器不能直连该地址，
+仅配置代理还不够：需在前端构建环境中明确指定这个 GB 媒体实例的公布地址，例如：
+
+```dotenv
+# SVA-web/.env.development.local（开发）或 .env.production.local（生产构建前）
+VUE_APP_GB_MEDIA_PUBLIC_ORIGIN=http://192.168.1.100:9996
+```
+
+这里填 WVP 返回地址的协议、主机和端口，不填流路径；`http` 同时匹配对应的 `ws`。
+播放器只把这个明确匹配的实例转换成站点 `/gb-media/rtp/...` 的 HTTP(S)-FLV，
+不会把其他远端媒体服务器的地址全部改写。开发环境重启服务，生产环境重新构建并部署前端。
+对应 `/gb-media` 代理必须指向同一个 ZLM 实例；多媒体服务器部署应分别设计路由，
+不能把所有实例都指向这个单实例代理。该配置不改变 SIP/SDP 中摄像机连接用的地址。
+
+浏览器验收必须实际打开预览，确认视频有尺寸且播放时间持续增加。仅在 WSL 内用
+`ffprobe` 取流成功，不能证明 Windows 或其他电脑的浏览器也能访问返回的播放地址。
 
 Linux 启动脚本、systemd 单元和 `.patch` 文件必须保持 LF 换行；仓库已通过
 `.gitattributes` 固定。Windows 下载的旧补丁若应用失败，先检查换行，再确认锁定的源码版本。
@@ -373,3 +404,6 @@ GPU 检查失败需要由有 NVIDIA 显卡的协作者修复其驱动/运行库�
   流媒体协议组验收点 3 的前置条件。
 
 验收描述应写“GB28181 软件模拟设备”，不要把模拟器表述为实体 IPC。
+
+本轮 CPU 开发机的实测范围、浏览器复验、已知限制及手工操作步骤见
+[2026-09-04 跨设备更新与复现记录](cross-device-verification-20260904.md)。
