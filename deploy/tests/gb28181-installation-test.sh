@@ -18,7 +18,7 @@ bash -n "$simulator"
 
 grep -q 'EASYSVA_MEDIA_SERVER_REF:-95eda58fcf3e8ed401d404f825cfbc434362af34' "$repo_dir/install_source.sh"
 grep -q 'EASYSVA_SERVER_REF:-f49d60183014117152607be2b592a72776db6f9f' "$repo_dir/install_source.sh"
-grep -q 'EASYSVA_BACKEND_REF:-a19b859ba37fd90d83a30f9fe7fc90666d9d3d05' "$repo_dir/install_source.sh"
+grep -q 'EASYSVA_BACKEND_REF:-f7b45abb993f99314350489eeb7f1d6e9944b33f' "$repo_dir/install_source.sh"
 grep -q 'EASYSVA_WEB_REF:-39197abe6da0f5e39ab934af9967fe77546bc6a7' "$repo_dir/install_source.sh"
 grep -q 'EASYSVA_GB_SIMULATOR_REF:-1da9bc62134d4cb1fd4374f733583fb5997c3f0a' "$repo_dir/install_source.sh"
 grep -q 'sbgb28181-fixed-local-port.patch' "$repo_dir/install_source.sh"
