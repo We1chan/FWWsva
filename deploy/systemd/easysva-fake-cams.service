@@ -1,0 +1,14 @@
+[Unit]
+Description=easySVA fake camera pool (loop push test videos to ZLMediaKit)
+After=network.target easysva-media.service
+Requires=easysva-media.service
+PartOf=easysva-media.service
+
+[Service]
+Type=simple
+ExecStart=/opt/SVA/fake-cams-push.sh
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

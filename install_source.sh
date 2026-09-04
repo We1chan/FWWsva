@@ -705,6 +705,8 @@ if [[ "$deploy_choice" =~ ^[Yy]$ ]]; then
         /opt/SVA/server/easysva-analyzer-launcher.sh
     install -m 0755 "$SCRIPT_DIR/deploy/scripts/easysva-restore-streams.sh" \
         /opt/SVA/server/easysva-restore-streams.sh
+    install -m 0755 "$SCRIPT_DIR/deploy/scripts/fake-cams-push.sh" \
+        /opt/SVA/fake-cams-push.sh
     install -m 0644 "$SCRIPT_DIR/deploy/systemd/easysva-backend.service" \
         /etc/systemd/system/easysva-backend.service
     install -m 0644 "$SCRIPT_DIR/deploy/systemd/easysva-media.service" \
@@ -713,6 +715,8 @@ if [[ "$deploy_choice" =~ ^[Yy]$ ]]; then
         /etc/systemd/system/easysva-analyzer.service
     install -m 0644 "$SCRIPT_DIR/deploy/systemd/easysva-stream-restore.service" \
         /etc/systemd/system/easysva-stream-restore.service
+    install -m 0644 "$SCRIPT_DIR/deploy/systemd/easysva-fake-cams.service" \
+        /etc/systemd/system/easysva-fake-cams.service
     install -m 0644 "$SCRIPT_DIR/deploy/systemd/easysva-rtsp-simulator.service" \
         /etc/systemd/system/easysva-rtsp-simulator.service
     install -m 0644 "$SCRIPT_DIR/deploy/systemd/easysva-rtsp-simulator-2.service" \
@@ -739,7 +743,7 @@ if [[ "$deploy_choice" =~ ^[Yy]$ ]]; then
     fi
 
     systemctl daemon-reload
-    systemctl enable easysva-backend easysva-media easysva-analyzer easysva-stream-restore \
+    systemctl enable easysva-backend easysva-media easysva-analyzer easysva-stream-restore easysva-fake-cams \
         easysva-rtsp-simulator easysva-rtsp-simulator-2 easysva-rtsp-simulator-3 \
         easysva-gb-media easysva-wvp easysva-gb-simulator-test6 \
         easysva-gb-simulator-test3 nginx mariadb redis-server

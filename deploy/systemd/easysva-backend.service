@@ -1,7 +1,8 @@
 [Unit]
 Description=easySVA backend
-After=network.target mariadb.service redis-server.service
+After=network.target mariadb.service redis-server.service easysva-stream-restore.service
 Requires=mariadb.service redis-server.service
+Wants=easysva-stream-restore.service
 
 [Service]
 Type=simple
