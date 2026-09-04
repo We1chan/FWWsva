@@ -13,7 +13,7 @@ REPO_BASE="${EASYSVA_REPO_BASE:-https://github.com/We1chan}"
 # The collaboration backend does not publish the old upstream v1.2.8 tag.
 MEDIA_SERVER_REF="${EASYSVA_MEDIA_SERVER_REF:-95eda58fcf3e8ed401d404f825cfbc434362af34}"
 ANALYZER_REF="${EASYSVA_SERVER_REF:-f49d60183014117152607be2b592a72776db6f9f}"
-BACKEND_REF="${EASYSVA_BACKEND_REF:-f7b45abb993f99314350489eeb7f1d6e9944b33f}"
+BACKEND_REF="${EASYSVA_BACKEND_REF:-6390beca5ee6c08ac8f339872bcb907cca96f635}"
 WEB_REF="${EASYSVA_WEB_REF:-98607abc3f598ba5e41a8511d184e1f2899d79e4}"
 WVP_REPO="${EASYSVA_WVP_REPO:-https://github.com/648540858/wvp-GB28181-pro.git}"
 WVP_REF="${EASYSVA_WVP_REF:-fb45787da01cb4f33a0b1dfaa613becf67391c17}"
@@ -610,6 +610,19 @@ server {
         index index.html index.htm index.nginx-debian.html;
 
         server_name _;
+
+        location = / {
+                try_files /index.html =404;
+                add_header Cache-Control "no-cache, no-store, must-revalidate" always;
+                add_header Pragma "no-cache" always;
+                add_header Expires "0" always;
+        }
+
+        location = /index.html {
+                add_header Cache-Control "no-cache, no-store, must-revalidate" always;
+                add_header Pragma "no-cache" always;
+                add_header Expires "0" always;
+        }
 
         location / {
                 try_files $uri $uri/ =404;
