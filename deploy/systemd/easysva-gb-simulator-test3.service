@@ -8,6 +8,8 @@ Type=simple
 Environment=GB28181_DEVICE_ID=44010200491320000003
 Environment=GB28181_CHANNEL_ID=44010200491320000013
 Environment=GB28181_LOCAL_PORT=15063
+Environment=GB28181_HEARTBEAT_INTERVAL=10
+Environment=GB28181_HEARTBEAT_COUNT=3
 Environment=GB28181_SIMULATOR_SOURCE=rtsp://127.0.0.1:9994/live/mock-camera-3
 ExecStart=/opt/SVA/gb28181/easysva-gb-simulator-launcher.sh
 Restart=always

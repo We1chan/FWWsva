@@ -1,46 +1,229 @@
+diff --git a/Readme.md b/Readme.md
+index 870944f..a841a86 100644
+--- a/Readme.md
++++ b/Readme.md
+@@ -22,0 +23 @@
++| **PTZ 指令验证**          | 解析并记录 `DeviceControl/PTZCmd`，可证明云台信令已送达模拟设备        |
+@@ -112,0 +114 @@ python3 gb28181_pusher.py \
++| `--local-port`             | 0                  | 本地 SIP 端口（0 表示自动分配）               |
+@@ -116,0 +119,2 @@ python3 gb28181_pusher.py \
++| `--heartbeat-interval`     | 60                 | 心跳间隔（秒）                             |
++| `--heartbeat-count`        | 3                  | 平台判离线前允许丢失的心跳次数              |
+@@ -146 +150 @@ python3 gb28181_proxy.py \
+-OpenAI o3 和 Gemini 2.5 Pro
+\ No newline at end of file
++OpenAI o3 和 Gemini 2.5 Pro
+diff --git a/Readme_EN.md b/Readme_EN.md
+index cd8d115..bcb6e7f 100644
+--- a/Readme_EN.md
++++ b/Readme_EN.md
+@@ -22,0 +23 @@ This repository contains a lean **GB28181** reference implementation that turns
++| **PTZ command verification**   | Decodes and logs `DeviceControl/PTZCmd` received from the platform |
+@@ -110,0 +112 @@ What happens next:
++| `--local-port`                 | `0`                            | Local SIP port (`0` chooses an ephemeral port)     |
+@@ -114,0 +117,2 @@ What happens next:
++| `--heartbeat-interval`         | `60`                           | Seconds between Keepalive messages                  |
++| `--heartbeat-count`            | `3`                            | Missed Keepalives before offline                     |
+@@ -137 +141 @@ The `--source` parameter can specify the video source:
+-OpenAI o3 and Gemini 2.5 Pro
+\ No newline at end of file
++OpenAI o3 and Gemini 2.5 Pro
 diff --git a/gb28181_pusher.py b/gb28181_pusher.py
-index a0f8c00..f4ab97d 100644
+index d180fe0..79b6f8c 100644
 --- a/gb28181_pusher.py
 +++ b/gb28181_pusher.py
-@@ -90,6 +90,7 @@ class GB28181Pusher(AbstractContextManager):
-         source: str = "test",
-         use_udp_signalling: bool = False,
-         local_ip: Optional[str] = None,
+@@ -89,0 +90 @@ class GB28181Pusher(AbstractContextManager):
 +        local_port: int = 0,
-         verbose: bool = False,
-         # Reconnection parameters
-         reconnect_interval: int = 5,
-@@ -106,6 +107,7 @@ class GB28181Pusher(AbstractContextManager):
-         self.channel_id: str = channel_id
-         self.use_udp_signalling: bool = use_udp_signalling
-         self.local_ip: str = local_ip or find_local_ip(server_ip)
+@@ -94,0 +96,2 @@ class GB28181Pusher(AbstractContextManager):
++        heartbeat_interval: int = 60,
++        heartbeat_count: int = 3,
+@@ -105,0 +109 @@ class GB28181Pusher(AbstractContextManager):
 +        self.local_port: int = local_port
-         self.verbose: bool = verbose
- 
-         # Reconnection settings
-@@ -362,7 +364,7 @@ class GB28181Pusher(AbstractContextManager):
-     def _open_signalling_socket(self) -> None:
-         if self.use_udp_signalling:
-             sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+@@ -111,0 +116,4 @@ class GB28181Pusher(AbstractContextManager):
++        if heartbeat_interval <= 0 or heartbeat_count <= 0:
++            raise ValueError("heartbeat interval and count must be positive")
++        self.heartbeat_interval: int = heartbeat_interval
++        self.heartbeat_count: int = heartbeat_count
+@@ -131,0 +140,7 @@ class GB28181Pusher(AbstractContextManager):
++        # Observable virtual PTZ state proves command delivery without pretending
++        # that a fixed video-file source contains a physical motorized camera.
++        self.ptz_state = {
++            "command": "stop", "pan_speed": 0, "tilt_speed": 0,
++            "zoom_speed": 0, "count": 0,
++        }
++
+@@ -365 +380 @@ class GB28181Pusher(AbstractContextManager):
 -            sock.bind((self.local_ip, 0))
 +            sock.bind((self.local_ip, self.local_port))
-             sock.settimeout(self.RECV_TIMEOUT)
-             LOGGER.info("UDP signalling %s → %s:%d", sock.getsockname(), self.server_ip, self.server_port)
-             self._send = self._wrap_send(lambda d: sock.sendto(d, (self.server_ip, self.server_port)), "UDP→")
-@@ -785,6 +787,8 @@ def _parse_cli(argv: List[str] | None = None) -> argparse.Namespace:  # noqa: D4
-     ap.add_argument("--source", default="test", help="Media source URI (default: videotestsrc)")
-     ap.add_argument("--udp", action="store_true", help="Use UDP for SIP signalling instead of TCP")
-     ap.add_argument("--local-ip", help="Local IP to bind (auto‑detect if omitted)")
+@@ -455 +470,2 @@ class GB28181Pusher(AbstractContextManager):
+-            f"<Model>v1</Model><Status>ON</Status></Item></DeviceList></Response>"
++            f"<Model>v1</Model><Status>ON</Status><Info><PTZType>1</PTZType></Info>"
++            f"</Item></DeviceList></Response>"
+@@ -481 +497 @@ class GB28181Pusher(AbstractContextManager):
+-                if self._heartbeat_stop_evt.wait(self.HB_GAP):
++                if self._heartbeat_stop_evt.wait(self.heartbeat_interval):
+@@ -553,0 +570,16 @@ class GB28181Pusher(AbstractContextManager):
++        if "<Control>" in msg and "<CmdType>DeviceControl</CmdType>" in msg:
++            ptz_match = re.search(r"<PTZCmd>\s*([0-9A-Fa-f]+)\s*</PTZCmd>", msg)
++            if ptz_match:
++                try:
++                    self.ptz_state = self._decode_ptz_command(
++                        ptz_match.group(1), self.ptz_state["count"] + 1
++                    )
++                    LOGGER.info(
++                        "PTZ command received: command=%s pan=%d tilt=%d zoom=%d count=%d",
++                        self.ptz_state["command"], self.ptz_state["pan_speed"],
++                        self.ptz_state["tilt_speed"], self.ptz_state["zoom_speed"],
++                        self.ptz_state["count"],
++                    )
++                except ValueError as exc:
++                    LOGGER.warning("Invalid PTZCmd ignored: %s", exc)
++            return
+@@ -562 +594,2 @@ class GB28181Pusher(AbstractContextManager):
+-                    f"<Model>v1</Model><Status>ON</Status></Item></DeviceList></Response>"
++                    f"<Model>v1</Model><Status>ON</Status><Info><PTZType>1</PTZType></Info>"
++                    f"</Item></DeviceList></Response>"
+@@ -572,0 +606,45 @@ class GB28181Pusher(AbstractContextManager):
++            elif cmd == "ConfigDownload":
++                config_xml = (
++                    f"<?xml version='1.0' encoding='GB2312'?><Response>"
++                    f"<CmdType>ConfigDownload</CmdType><SN>{sn}</SN><DeviceID>{self.agent_id}</DeviceID>"
++                      f"<Result>OK</Result><BasicParam><Name>{DEVICENAME}</Name><Expiration>3600</Expiration>"
++                      f"<HeartBeatInterval>{self.heartbeat_interval}</HeartBeatInterval>"
++                      f"<HeartBeatCount>{self.heartbeat_count}</HeartBeatCount>"
++                      f"<PositionCapability>0</PositionCapability>"
++                      f"</BasicParam></Response>"
++                  )
++                self._send(self._build_message(config_xml, 97, "configR"))
++
++    @staticmethod
++    def _decode_ptz_command(value: str, count: int = 1) -> dict:
++        """Decode the eight-byte GB28181 A.3.1 PTZ command used by WVP."""
++        if not re.fullmatch(r"[0-9A-Fa-f]{16}", value or ""):
++            raise ValueError("PTZCmd must contain exactly 16 hexadecimal characters")
++        raw = bytes.fromhex(value)
++        if raw[:3] != bytes((0xA5, 0x0F, 0x01)):
++            raise ValueError("unsupported PTZCmd header")
++        if sum(raw[:7]) % 0x100 != raw[7]:
++            raise ValueError("PTZCmd checksum mismatch")
++
++        code = raw[3]
++        movements = []
++        if code & 0x02:
++            movements.append("left")
++        elif code & 0x01:
++            movements.append("right")
++        if code & 0x08:
++            movements.append("up")
++        elif code & 0x04:
++            movements.append("down")
++        if code & 0x10:
++            movements.append("zoomin")
++        elif code & 0x20:
++            movements.append("zoomout")
++
++        return {
++            "command": "+".join(movements) if movements else "stop",
++            "pan_speed": raw[4],
++            "tilt_speed": raw[5],
++            "zoom_speed": raw[6] >> 4,
++            "count": count,
++        }
+@@ -787,0 +866,2 @@ def _parse_cli(argv: List[str] | None = None) -> argparse.Namespace:  # noqa: D4
 +    ap.add_argument("--local-port", type=int, default=0,
 +                    help="Local SIP port (0 selects an ephemeral port)")
-     ap.add_argument("--verbose", action="store_true", help="Dump full SIP packets")
- 
-     # Reconnection options
-@@ -812,6 +816,7 @@ def main(argv: List[str] | None = None) -> None:  # noqa: D401
-         source=ns.source,
-         use_udp_signalling=ns.udp,
-         local_ip=ns.local_ip,
+@@ -796,0 +877,4 @@ def _parse_cli(argv: List[str] | None = None) -> argparse.Namespace:  # noqa: D4
++    ap.add_argument("--heartbeat-interval", type=int, default=60,
++                   help="Seconds between Keepalive messages [60]")
++    ap.add_argument("--heartbeat-count", type=int, default=3,
++                   help="Missed Keepalive messages before offline [3]")
+@@ -813,0 +898 @@ def main(argv: List[str] | None = None) -> None:  # noqa: D401
 +        local_port=ns.local_port,
-         verbose=ns.verbose,
-         reconnect_interval=ns.reconnect_interval,
-         max_reconnect_attempts=ns.max_reconnect_attempts,
+@@ -817,0 +903,2 @@ def main(argv: List[str] | None = None) -> None:  # noqa: D401
++        heartbeat_interval=ns.heartbeat_interval,
++        heartbeat_count=ns.heartbeat_count,
+diff --git a/test_gb28181_pusher.py b/test_gb28181_pusher.py
+new file mode 100644
+index 0000000..463c92c
+--- /dev/null
++++ b/test_gb28181_pusher.py
+@@ -0,0 +1,79 @@
++import unittest
++
++from gb28181_pusher import GB28181Pusher
++
++
++class PtzCommandTest(unittest.TestCase):
++
++    def test_decodes_left_command_from_wvp(self):
++        # A5 0F 01 02 80 40 F0 67: left, pan=128, tilt=64, zoom=15.
++        state = GB28181Pusher._decode_ptz_command("A50F01028040F067", 4)
++        self.assertEqual("left", state["command"])
++        self.assertEqual(128, state["pan_speed"])
++        self.assertEqual(64, state["tilt_speed"])
++        self.assertEqual(15, state["zoom_speed"])
++        self.assertEqual(4, state["count"])
++
++    def test_decodes_diagonal_and_stop(self):
++        diagonal = GB28181Pusher._decode_ptz_command("A50F010A32320023")
++        self.assertEqual("left+up", diagonal["command"])
++        stopped = GB28181Pusher._decode_ptz_command("A50F0100000000B5")
++        self.assertEqual("stop", stopped["command"])
++
++    def test_rejects_invalid_checksum(self):
++        with self.assertRaisesRegex(ValueError, "checksum"):
++            GB28181Pusher._decode_ptz_command("A50F01028040F000")
++
++    def test_device_control_message_updates_observable_state(self):
++        pusher = GB28181Pusher(
++            server_ip="127.0.0.1", server_id="44010200492000000001",
++            agent_id="44010200491320000001", agent_password="test",
++            channel_id="44010200491310000001", local_ip="127.0.0.1",
++        )
++        sent = []
++        pusher._local_port = 15060
++        pusher._send = sent.append
++        message = (
++            "MESSAGE sip:device SIP/2.0\r\n"
++            "Via: SIP/2.0/UDP 127.0.0.1:5060;branch=z9\r\n"
++            "From: <sip:server>;tag=1\r\nTo: <sip:device>\r\n"
++            "Call-ID: ptz-1\r\nCSeq: 1 MESSAGE\r\n\r\n"
++            "<Control><CmdType>DeviceControl</CmdType><SN>1</SN>"
++            "<DeviceID>44010200491310000001</DeviceID>"
++            "<PTZCmd>A50F010A32320023</PTZCmd></Control>"
++        )
++
++        pusher._handle_message(message)
++
++        self.assertEqual("left+up", pusher.ptz_state["command"])
++        self.assertEqual(1, pusher.ptz_state["count"])
++        self.assertTrue(sent[0].startswith(b"SIP/2.0 200 OK"))
++
++    def test_config_query_advertises_fast_heartbeat(self):
++        pusher = GB28181Pusher(
++            server_ip="127.0.0.1", server_id="44010200492000000001",
++            agent_id="44010200491320000001", agent_password="test",
++            channel_id="44010200491310000001", local_ip="127.0.0.1",
++            heartbeat_interval=10, heartbeat_count=2,
++        )
++        sent = []
++        pusher._local_port = 15060
++        pusher._send = sent.append
++        message = (
++            "MESSAGE sip:device SIP/2.0\r\n"
++            "Via: SIP/2.0/UDP 127.0.0.1:5060;branch=z9\r\n"
++            "From: <sip:server>;tag=1\r\nTo: <sip:device>\r\n"
++            "Call-ID: config-1\r\nCSeq: 2 MESSAGE\r\n\r\n"
++            "<Query><CmdType>ConfigDownload</CmdType><SN>2</SN>"
++            "<DeviceID>44010200491320000001</DeviceID></Query>"
++        )
++
++        pusher._handle_message(message)
++
++        response = sent[1].decode("gb2312")
++        self.assertIn("<HeartBeatInterval>10</HeartBeatInterval>", response)
++        self.assertIn("<HeartBeatCount>2</HeartBeatCount>", response)
++
++
++if __name__ == "__main__":
++    unittest.main()

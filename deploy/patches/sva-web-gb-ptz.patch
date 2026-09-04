@@ -1,0 +1,510 @@
+diff --git a/src/api/device.js b/src/api/device.js
+index dd100f8..debb184 100644
+--- a/src/api/device.js
++++ b/src/api/device.js
+@@ -96 +96 @@ export function stopDeviceMonitor(apeId) {
+-export function previewDeviceMonitor(apeId) {
++export function previewDeviceMonitor(apeId) {
+@@ -101 +101,13 @@ export function previewDeviceMonitor(apeId) {
+-}
++}
++
++/**
++ * 下发 GB28181 云台指令。速度字段使用 0-100 百分比。
++ */
++export function controlDevicePtz(apeId, data) {
++  return request({
++    url: `/waring/device/monitor/${apeId}/ptz`,
++    method: 'post',
++    data,
++    timeout: 5000
++  })
++}
+diff --git a/src/components/RTSPPlayer/index.vue b/src/components/RTSPPlayer/index.vue
+index 66582a8..379364a 100644
+--- a/src/components/RTSPPlayer/index.vue
++++ b/src/components/RTSPPlayer/index.vue
+@@ -2 +2 @@
+-  <el-card :class="['box-card', { 'box-card--inline': inline }]" :style="cardStyle">
++  <el-card :class="['box-card', { 'box-card--inline': inline, 'box-card--controls': $slots.controls, 'box-card--expanded': expanded }]" :style="cardStyle">
+@@ -7 +7 @@
+-    <el-row>
++    <el-row>
+@@ -10,2 +10,2 @@
+-          <div class="block" style="margin-top: 25px;">
+-            <video id="flv-1" ref="flvVideo" height="500" muted controls loop />
++          <div class="block video-viewport" style="margin-top: 25px;">
++            <video id="flv-1" ref="flvVideo" height="500" muted controls loop :style="viewportStyle" />
+@@ -14,3 +14,6 @@
+-      </el-col>
+-    </el-row>
+-  </el-card>
++      </el-col>
++    </el-row>
++    <div v-if="$slots.controls" class="player-controls">
++      <slot name="controls" />
++    </div>
++  </el-card>
+@@ -39,4 +42,20 @@ export default {
+-    inline: {
+-      type: Boolean,
+-      default: false
+-    }
++    inline: {
++      type: Boolean,
++      default: false
++    },
++    expanded: {
++      type: Boolean,
++      default: false
++    },
++    viewportZoom: {
++      type: Number,
++      default: 1
++    },
++    viewportX: {
++      type: Number,
++      default: 0
++    },
++    viewportY: {
++      type: Number,
++      default: 0
++    }
+@@ -53,3 +72,15 @@ export default {
+-    cardStyle() {
+-      return this.inline ? {} : { zIndex: 1000 }
+-    }
++    cardStyle() {
++      return this.inline ? {} : { zIndex: 1000 }
++    },
++    viewportStyle() {
++      const zoom = Math.max(1, Number(this.viewportZoom) || 1)
++      // X/Y represent the virtual window's direction. Moving the window right
++      // means translating the enlarged source left underneath it.
++      const maxTranslate = (zoom - 1) * 50
++      const round = value => Math.round(value * 1000) / 1000
++      const x = round(-Math.max(-1, Math.min(1, Number(this.viewportX) || 0)) * maxTranslate)
++      const y = round(-Math.max(-1, Math.min(1, Number(this.viewportY) || 0)) * maxTranslate)
++      return {
++        transform: `translate(${x}%, ${y}%) scale(${zoom})`
++      }
++    }
+@@ -193,2 +224,3 @@ export default {
+-  width: 1030px;
+-  height: 620px;
++  width: 1030px;
++  max-width: calc(100vw - 40px);
++  height: 620px;
+@@ -207 +239 @@ export default {
+-.box-card--inline ::v-deep video {
++.box-card--inline ::v-deep video {
+@@ -210,2 +242,38 @@ export default {
+-}
+-</style>
++}
++
++.player-controls {
++  padding: 10px 18px 2px;
++  border-top: 1px solid #ebeef5;
++}
++
++.video-viewport {
++  overflow: hidden;
++  background: #000;
++}
++
++.video-viewport ::v-deep video {
++  display: block;
++  width: 100%;
++  object-fit: contain;
++  transform-origin: center center;
++  transition: transform 100ms linear;
++  background: #000;
++}
++
++.box-card--controls {
++  height: auto;
++  min-height: 620px;
++}
++
++.box-card--expanded {
++  width: 1160px;
++  min-height: 690px;
++}
++
++.box-card--expanded ::v-deep video {
++  width: 100%;
++  height: 530px;
++  object-fit: contain;
++  background: #000;
++}
++</style>
+diff --git a/src/views/device/manage.vue b/src/views/device/manage.vue
+index 2be5bd0..60c2685 100644
+--- a/src/views/device/manage.vue
++++ b/src/views/device/manage.vue
+@@ -208,0 +209,4 @@
++      :expanded="isGbPreview"
++      :viewport-zoom="ptzMode === 'viewport' ? viewportZoom : 1"
++      :viewport-x="ptzMode === 'viewport' ? viewportX : 0"
++      :viewport-y="ptzMode === 'viewport' ? viewportY : 0"
+@@ -210,2 +214,43 @@
+-      @closeProof="viewProof = false"
+-    />
++      @closeProof="closePreview"
++    >
++      <template v-if="isGbPreview" slot="controls">
++        <div class="ptz-panel">
++          <div class="ptz-title">
++            <span><i class="el-icon-rank" /> 取景 / 云台控制</span>
++            <el-radio-group v-model="ptzMode" size="mini" @change="handlePtzModeChange">
++              <el-radio-button label="viewport">预览取景</el-radio-button>
++              <el-radio-button label="device">设备云台</el-radio-button>
++            </el-radio-group>
++          </div>
++          <div class="ptz-hint">
++            {{ ptzMode === 'viewport' ? '仅改变当前预览取景，监测仍使用完整原始画面' : '向实体设备下发 PTZ，服务端含自动停止保护' }}
++          </div>
++          <div class="ptz-content">
++            <div class="ptz-pad" @mouseleave="stopPtz">
++              <el-button class="ptz-button" aria-label="左上" @mousedown.native.prevent="startPtz('upleft')" @mouseup.native.prevent="stopPtz" @touchstart.native.prevent="startPtz('upleft')" @touchend.native.prevent="stopPtz">↖</el-button>
++              <el-button class="ptz-button" aria-label="向上" @mousedown.native.prevent="startPtz('up')" @mouseup.native.prevent="stopPtz" @touchstart.native.prevent="startPtz('up')" @touchend.native.prevent="stopPtz">↑</el-button>
++              <el-button class="ptz-button" aria-label="右上" @mousedown.native.prevent="startPtz('upright')" @mouseup.native.prevent="stopPtz" @touchstart.native.prevent="startPtz('upright')" @touchend.native.prevent="stopPtz">↗</el-button>
++              <el-button class="ptz-button" aria-label="向左" @mousedown.native.prevent="startPtz('left')" @mouseup.native.prevent="stopPtz" @touchstart.native.prevent="startPtz('left')" @touchend.native.prevent="stopPtz">←</el-button>
++              <el-button class="ptz-button ptz-stop" aria-label="停止" @click="stopPtz(true)">■</el-button>
++              <el-button class="ptz-button" aria-label="向右" @mousedown.native.prevent="startPtz('right')" @mouseup.native.prevent="stopPtz" @touchstart.native.prevent="startPtz('right')" @touchend.native.prevent="stopPtz">→</el-button>
++              <el-button class="ptz-button" aria-label="左下" @mousedown.native.prevent="startPtz('downleft')" @mouseup.native.prevent="stopPtz" @touchstart.native.prevent="startPtz('downleft')" @touchend.native.prevent="stopPtz">↙</el-button>
++              <el-button class="ptz-button" aria-label="向下" @mousedown.native.prevent="startPtz('down')" @mouseup.native.prevent="stopPtz" @touchstart.native.prevent="startPtz('down')" @touchend.native.prevent="stopPtz">↓</el-button>
++              <el-button class="ptz-button" aria-label="右下" @mousedown.native.prevent="startPtz('downright')" @mouseup.native.prevent="stopPtz" @touchstart.native.prevent="startPtz('downright')" @touchend.native.prevent="stopPtz">↘</el-button>
++            </div>
++            <div class="ptz-zoom">
++              <el-button aria-label="拉近" @mousedown.native.prevent="startPtz('zoomin')" @mouseup.native.prevent="stopPtz" @touchstart.native.prevent="startPtz('zoomin')" @touchend.native.prevent="stopPtz">变倍 +</el-button>
++              <el-button aria-label="拉远" @mousedown.native.prevent="startPtz('zoomout')" @mouseup.native.prevent="stopPtz" @touchstart.native.prevent="startPtz('zoomout')" @touchend.native.prevent="stopPtz">变倍 −</el-button>
++            </div>
++            <div v-if="ptzMode === 'device'" class="ptz-speed">
++              <span>移动速度 {{ ptzSpeed }}%</span>
++              <el-slider v-model="ptzSpeed" :min="10" :max="100" :step="10" />
++            </div>
++            <div v-else class="ptz-speed viewport-status">
++              <span>取景倍率 {{ Number(viewportZoom).toFixed(2) }}×</span>
++              <el-slider v-model="viewportZoom" :min="1" :max="2.5" :step="0.05" @input="normalizeViewport" />
++              <el-button size="mini" icon="el-icon-refresh-left" @click="resetViewport">恢复默认取景</el-button>
++            </div>
++          </div>
++        </div>
++      </template>
++    </player>
+@@ -349 +394 @@
+-import { getDeviceList, getDevice, addDevice, updateDevice, delDevice, startDeviceMonitor, stopDeviceMonitor, previewDeviceMonitor, syncGb28181Devices, refreshGb28181Status } from '@/api/device'
++import { getDeviceList, getDevice, addDevice, updateDevice, delDevice, startDeviceMonitor, stopDeviceMonitor, previewDeviceMonitor, controlDevicePtz, syncGb28181Devices, refreshGb28181Status } from '@/api/device'
+@@ -386,0 +432,11 @@ export default {
++      previewDevice: null,
++      ptzSpeed: 50,
++      ptzCommand: '',
++      ptzRenewTimer: null,
++      ptzRequestInFlight: false,
++      ptzQueuedCommand: '',
++      ptzMode: 'viewport',
++      viewportZoom: 1.1,
++      viewportX: 0,
++      viewportY: 0,
++      viewportMoveTimer: null,
+@@ -419,0 +476,6 @@ export default {
++  computed: {
++    isGbPreview() {
++      const device = this.previewDevice || {}
++      return String(device.device_type || device.stream_source_type || '').toUpperCase() === 'GB28181'
++    }
++  },
+@@ -423,0 +486,12 @@ export default {
++  mounted() {
++    window.addEventListener('mouseup', this.stopPtz)
++    window.addEventListener('touchend', this.stopPtz)
++    window.addEventListener('blur', this.stopPtz)
++  },
++  beforeDestroy() {
++    window.removeEventListener('mouseup', this.stopPtz)
++    window.removeEventListener('touchend', this.stopPtz)
++    window.removeEventListener('blur', this.stopPtz)
++    this.stopPtz()
++    this.clearViewportMoveTimer()
++  },
+@@ -834,0 +909,3 @@ export default {
++      this.previewDevice = row
++      this.ptzMode = 'viewport'
++      this.resetViewport()
+@@ -836,0 +914,106 @@ export default {
++    ptzPayload(command) {
++      return {
++        command,
++        panSpeed: this.ptzSpeed,
++        tiltSpeed: this.ptzSpeed,
++        zoomSpeed: this.ptzSpeed
++      }
++    },
++    async sendPtz(command, showError = true) {
++      const device = this.previewDevice || {}
++      const apeId = device.ape_id || device.apeId
++      if (!apeId) return
++      if (this.ptzRequestInFlight) {
++        // STOP 永远覆盖排队中的续期命令，避免松手时恰逢请求在途而漏停。
++        if (command === 'stop' || !this.ptzQueuedCommand) this.ptzQueuedCommand = command
++        return
++      }
++      this.ptzRequestInFlight = true
++      try {
++        await controlDevicePtz(apeId, this.ptzPayload(command))
++      } catch (error) {
++        if (showError) {
++          this.$modal.msgError((error && error.message) || '云台指令下发失败')
++        }
++        this.clearPtzRenewTimer()
++        this.ptzCommand = ''
++        this.ptzQueuedCommand = ''
++      } finally {
++        this.ptzRequestInFlight = false
++        const queuedCommand = this.ptzQueuedCommand
++        this.ptzQueuedCommand = ''
++        if (queuedCommand) this.sendPtz(queuedCommand, false)
++      }
++    },
++    startPtz(command) {
++      if (!this.isGbPreview || this.ptzCommand === command) return
++      this.clearPtzRenewTimer()
++      this.clearViewportMoveTimer()
++      this.ptzCommand = command
++      if (this.ptzMode === 'viewport') {
++        this.applyViewportCommand(command)
++        this.viewportMoveTimer = window.setInterval(() => this.applyViewportCommand(command), 120)
++        return
++      }
++      this.sendPtz(command)
++      // 服务端 1.5 秒后自动 STOP；按住时续期，使浏览器异常退出也不会失控。
++      this.ptzRenewTimer = window.setInterval(() => this.sendPtz(command, false), 700)
++    },
++    stopPtz(force = false) {
++      const wasMoving = Boolean(this.ptzCommand)
++      this.clearPtzRenewTimer()
++      this.clearViewportMoveTimer()
++      this.ptzCommand = ''
++      if (this.ptzMode === 'device' && (wasMoving || force === true) && this.isGbPreview) {
++        this.sendPtz('stop', false)
++      }
++    },
++    clearPtzRenewTimer() {
++      if (this.ptzRenewTimer !== null) {
++        window.clearInterval(this.ptzRenewTimer)
++        this.ptzRenewTimer = null
++      }
++    },
++    clearViewportMoveTimer() {
++      if (this.viewportMoveTimer !== null) {
++        window.clearInterval(this.viewportMoveTimer)
++        this.viewportMoveTimer = null
++      }
++    },
++    applyViewportCommand(command) {
++      const movementStep = 0.08
++      const zoomStep = 0.03
++      if (command.indexOf('left') !== -1) this.viewportX -= movementStep
++      if (command.indexOf('right') !== -1) this.viewportX += movementStep
++      if (command.indexOf('up') !== -1) this.viewportY -= movementStep
++      if (command.indexOf('down') !== -1) this.viewportY += movementStep
++      if (command === 'zoomin') this.viewportZoom += zoomStep
++      if (command === 'zoomout') this.viewportZoom -= zoomStep
++      this.normalizeViewport()
++    },
++    normalizeViewport() {
++      this.viewportZoom = Math.max(1, Math.min(2.5, Number(this.viewportZoom) || 1))
++      this.viewportX = Math.max(-1, Math.min(1, this.viewportX))
++      this.viewportY = Math.max(-1, Math.min(1, this.viewportY))
++      if (this.viewportZoom === 1) {
++        this.viewportX = 0
++        this.viewportY = 0
++      }
++    },
++    resetViewport() {
++      this.viewportZoom = 1.1
++      this.viewportX = 0
++      this.viewportY = 0
++    },
++    handlePtzModeChange(mode) {
++      const wasMoving = Boolean(this.ptzCommand)
++      this.clearPtzRenewTimer()
++      this.clearViewportMoveTimer()
++      this.ptzCommand = ''
++      if (mode === 'viewport' && wasMoving) this.sendPtz('stop', false)
++    },
++    closePreview() {
++      this.stopPtz()
++      this.viewProof = false
++      this.previewDevice = null
++    },
+@@ -857,0 +1041,65 @@ export default {
++
++.ptz-panel {
++  color: #303133;
++}
++
++.ptz-title,
++.ptz-content {
++  display: flex;
++  align-items: center;
++}
++
++.ptz-title {
++  justify-content: space-between;
++  margin-bottom: 8px;
++  font-weight: 600;
++}
++
++.ptz-hint {
++  margin: -3px 0 9px;
++  color: #909399;
++  font-size: 12px;
++  font-weight: 400;
++}
++
++.viewport-status .el-button {
++  width: 100%;
++}
++
++.ptz-content {
++  justify-content: center;
++  gap: 28px;
++}
++
++.ptz-pad {
++  display: grid;
++  grid-template-columns: repeat(3, 42px);
++  gap: 6px;
++}
++
++.ptz-pad .ptz-button {
++  width: 42px;
++  height: 34px;
++  margin: 0;
++  padding: 0;
++  font-size: 18px;
++}
++
++.ptz-stop {
++  color: #f56c6c;
++}
++
++.ptz-zoom {
++  display: flex;
++  flex-direction: column;
++  gap: 8px;
++}
++
++.ptz-zoom .el-button + .el-button {
++  margin-left: 0;
++}
++
++.ptz-speed {
++  width: 220px;
++  font-size: 13px;
++}
+diff --git a/tests/unit/api-device.spec.js b/tests/unit/api-device.spec.js
+index 24b56cb..c2a0a64 100644
+--- a/tests/unit/api-device.spec.js
++++ b/tests/unit/api-device.spec.js
+@@ -6 +6 @@ import request from '@/utils/request'
+-import { syncGb28181Devices, refreshGb28181Status } from '@/api/device'
++import { syncGb28181Devices, refreshGb28181Status, controlDevicePtz } from '@/api/device'
+@@ -35,0 +36,11 @@ describe('device.js GB28181 API', () => {
++
++  it('云台控制只提交业务设备编码与语义化指令', () => {
++    const data = { command: 'left', panSpeed: 50, tiltSpeed: 50, zoomSpeed: 50 }
++    controlDevicePtz('gb-1', data)
++    expect(request).toHaveBeenCalledWith({
++      url: '/waring/device/monitor/gb-1/ptz',
++      method: 'post',
++      data,
++      timeout: 5000
++    })
++  })
+diff --git a/tests/unit/device-manage.spec.js b/tests/unit/device-manage.spec.js
+index 7b83b9c..9edcdea 100644
+--- a/tests/unit/device-manage.spec.js
++++ b/tests/unit/device-manage.spec.js
+@@ -20,0 +21 @@ import {
++  controlDevicePtz,
+@@ -31,0 +33 @@ jest.mock('@/api/device', () => ({
++  controlDevicePtz: jest.fn(),
+@@ -91,0 +94 @@ describe('DeviceManage GB28181 适配', () => {
++    controlDevicePtz.mockResolvedValue({ data: { accepted: true } })
+@@ -233,0 +237,34 @@ describe('DeviceManage GB28181 适配', () => {
++
++  it('GB28181 预览支持按住移动并在松开时发送停止', async () => {
++    const wrapper = createWrapper()
++    await flushAll()
++    wrapper.vm.previewDevice = { ape_id: 'gb-1', device_type: 'GB28181' }
++    wrapper.vm.viewProof = true
++    wrapper.vm.ptzMode = 'device'
++
++    wrapper.vm.startPtz('left')
++    await flushAll()
++    expect(controlDevicePtz).toHaveBeenCalledWith('gb-1', expect.objectContaining({ command: 'left' }))
++
++    wrapper.vm.stopPtz()
++    await flushAll()
++    expect(controlDevicePtz).toHaveBeenCalledWith('gb-1', expect.objectContaining({ command: 'stop' }))
++    wrapper.destroy()
++  })
++
++  it('GB28181 默认使用数字取景，移动预览但不改变后端监测流', async () => {
++    const wrapper = createWrapper()
++    await flushAll()
++    wrapper.vm.previewDevice = { ape_id: 'gb-1', device_type: 'GB28181' }
++    wrapper.vm.viewProof = true
++
++    expect(wrapper.vm.ptzMode).toBe('viewport')
++    expect(wrapper.vm.viewportZoom).toBe(1.1)
++    wrapper.vm.startPtz('downright')
++    wrapper.vm.stopPtz()
++
++    expect(wrapper.vm.viewportX).toBeGreaterThan(0)
++    expect(wrapper.vm.viewportY).toBeGreaterThan(0)
++    expect(controlDevicePtz).not.toHaveBeenCalled()
++    wrapper.destroy()
++  })
+diff --git a/tests/unit/rtsp-player.spec.js b/tests/unit/rtsp-player.spec.js
+index daaedb0..9fe2273 100644
+--- a/tests/unit/rtsp-player.spec.js
++++ b/tests/unit/rtsp-player.spec.js
+@@ -45,0 +46,33 @@ describe('RTSPPlayer', () => {
++
++  it('uses the slightly expanded layout when GB28181 controls need more room', () => {
++    const wrapper = mount(RTSPPlayer, {
++      localVue,
++      propsData: {
++        rtspUrl: '',
++        viewProof: false,
++        title: '国标预览',
++        expanded: true
++      }
++    })
++
++    expect(wrapper.classes()).toContain('box-card--expanded')
++    wrapper.destroy()
++  })
++
++  it('applies digital zoom and viewport movement only to the preview video', () => {
++    const wrapper = mount(RTSPPlayer, {
++      localVue,
++      propsData: {
++        rtspUrl: '',
++        viewProof: false,
++        title: '国标预览',
++        viewportZoom: 1.2,
++        viewportX: 1,
++        viewportY: -1
++      }
++    })
++
++    expect(wrapper.vm.viewportStyle.transform).toBe('translate(-10%, 10%) scale(1.2)')
++    expect(wrapper.find('video').attributes('style')).toContain('scale(1.2)')
++    wrapper.destroy()
++  })

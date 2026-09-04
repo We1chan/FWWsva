@@ -31,11 +31,24 @@ local_ip="${GB28181_LOCAL_IP:-$host_ip}"
 : "${local_ip:?Set GB28181_LOCAL_IP or GB28181_HOST_IP}"
 server_port="${GB28181_SIP_PORT:-5060}"
 local_port="${GB28181_LOCAL_PORT:-0}"
+heartbeat_interval="${GB28181_HEARTBEAT_INTERVAL:-60}"
+heartbeat_count="${GB28181_HEARTBEAT_COUNT:-3}"
 
 : "${GB28181_DEVICE_ID:?GB28181_DEVICE_ID is required}"
 : "${GB28181_CHANNEL_ID:?GB28181_CHANNEL_ID is required}"
 : "${GB28181_SIMULATOR_SOURCE:?GB28181_SIMULATOR_SOURCE is required}"
 : "${GB28181_SIP_PASSWORD:?GB28181_SIP_PASSWORD is required}"
+
+if ! [[ "$heartbeat_interval" =~ ^[1-9][0-9]*$ ]]; then
+    printf 'GB28181_HEARTBEAT_INTERVAL must be a positive integer, got: %s\n' \
+        "$heartbeat_interval" >&2
+    exit 1
+fi
+if ! [[ "$heartbeat_count" =~ ^[1-9][0-9]*$ ]]; then
+    printf 'GB28181_HEARTBEAT_COUNT must be a positive integer, got: %s\n' \
+        "$heartbeat_count" >&2
+    exit 1
+fi
 
 server_id="${GB28181_SERVER_ID:-44010200492000000001}"
 domain="${GB28181_DOMAIN:-4401020049}"
@@ -96,4 +109,6 @@ exec python3 "$simulator_root/gb28181_pusher.py" \
     --source "$GB28181_SIMULATOR_SOURCE" \
     --udp \
     --local-ip "$local_ip" \
-    --local-port "$local_port"
+    --local-port "$local_port" \
+    --heartbeat-interval "$heartbeat_interval" \
+    --heartbeat-count "$heartbeat_count"

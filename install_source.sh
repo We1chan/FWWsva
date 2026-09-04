@@ -526,6 +526,8 @@ fi
 
 checkout_repo_at_ref "$REPO_BASE/SVA-backend.git" \
     /opt/SVA/SVA-backend "$BACKEND_REF"
+git -C /opt/SVA/SVA-backend apply --unidiff-zero \
+    "$SCRIPT_DIR/deploy/patches/sva-backend-gb-ptz.patch"
 cd /opt/SVA/SVA-backend
 JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64 \
 PATH="/usr/lib/jvm/java-17-openjdk-amd64/bin:$PATH" \
@@ -542,7 +544,8 @@ PATH="/usr/lib/jvm/java-21-openjdk-amd64/bin:$PATH" \
 
 echo "编译GB28181软件摄像头"
 checkout_repo_at_ref "$GB_SIMULATOR_REPO" /opt/SVA/sbgb28181 "$GB_SIMULATOR_REF"
-git -C /opt/SVA/sbgb28181 apply \
+# 固定端口、可配置心跳、ConfigDownload 与 PTZ 指令可观测能力。
+git -C /opt/SVA/sbgb28181 apply --unidiff-zero \
     "$SCRIPT_DIR/deploy/patches/sbgb28181-fixed-local-port.patch"
 meson setup /opt/SVA/sbgb28181/gst-gb28181sink/build \
     /opt/SVA/sbgb28181/gst-gb28181sink
@@ -574,6 +577,8 @@ apt install -y nodejs
 #前端编译
 #用户名为  admin/admin123
 checkout_repo_at_ref "$REPO_BASE/SVA-web.git" /var/www/SVA-web "$WEB_REF"
+git -C /var/www/SVA-web apply --unidiff-zero \
+    "$SCRIPT_DIR/deploy/patches/sva-web-gb-ptz.patch"
 cd /var/www/SVA-web
 npm config set registry https://registry.npmmirror.com/
 npm install

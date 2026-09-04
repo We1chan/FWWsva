@@ -29,7 +29,8 @@ export EASYSVA_GB_SIMULATOR_DIR="$test_dir/simulator"
 export EASYSVA_GB_ENV_FILE="$test_dir/camera.env"
 export GB28181_DEVICE_ID=44010200491320000003 GB28181_CHANNEL_ID=44010200491320000013
 export GB28181_SIMULATOR_SOURCE=test GB28181_SIP_PASSWORD=test-only
-unset GB28181_HOST_IP GB28181_SERVER_IP GB28181_LOCAL_IP GB28181_SIP_PORT
+unset GB28181_HOST_IP GB28181_SERVER_IP GB28181_LOCAL_IP GB28181_SIP_PORT \
+    GB28181_HEARTBEAT_INTERVAL GB28181_HEARTBEAT_COUNT
 cat > "$EASYSVA_GB_ENV_FILE" <<'CONFIG'
 GB28181_HOST_IP=192.0.2.30
 GB28181_SIP_PORT=15060
@@ -38,9 +39,18 @@ launcher="$repo_dir/deploy/scripts/easysva-gb-simulator-launcher.sh"
 output="$(bash "$launcher")"
 [[ "$(grep -c '^192.0.2.30$' <<< "$output")" == 2 ]]
 grep -qx 15060 <<< "$output"
+grep -qx 60 <<< "$output"
+grep -qx 3 <<< "$output"
 output="$(GB28181_SERVER_IP=192.0.2.40 GB28181_LOCAL_IP=192.0.2.41 bash "$launcher")"
 grep -qx 192.0.2.40 <<< "$output"
 grep -qx 192.0.2.41 <<< "$output"
 output="$(EASYSVA_GB_ENV_FILE="$test_dir/missing.env" bash "$launcher")"
 [[ "$(grep -c '^192.0.2.20$' <<< "$output")" == 2 ]]
-echo 'GB simulator configuration tests passed (env file, explicit IPs, auto detection).'
+output="$(GB28181_HEARTBEAT_INTERVAL=10 GB28181_HEARTBEAT_COUNT=2 bash "$launcher")"
+grep -qx 10 <<< "$output"
+grep -qx 2 <<< "$output"
+if GB28181_HEARTBEAT_INTERVAL=0 bash "$launcher" >/dev/null 2>&1; then
+    echo 'GB simulator launcher accepted an invalid heartbeat interval.' >&2
+    exit 1
+fi
+echo 'GB simulator configuration tests passed (env file, IPs, heartbeat and auto detection).'
