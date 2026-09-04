@@ -13,8 +13,8 @@ REPO_BASE="${EASYSVA_REPO_BASE:-https://github.com/We1chan}"
 # The collaboration backend does not publish the old upstream v1.2.8 tag.
 MEDIA_SERVER_REF="${EASYSVA_MEDIA_SERVER_REF:-95eda58fcf3e8ed401d404f825cfbc434362af34}"
 ANALYZER_REF="${EASYSVA_SERVER_REF:-f49d60183014117152607be2b592a72776db6f9f}"
-BACKEND_REF="${EASYSVA_BACKEND_REF:-bc978100a6c3bdcea0d6da542ca064c83dde1369}"
-WEB_REF="${EASYSVA_WEB_REF:-6012ed5dc2d2a10b9948af84bb23168ce59306f8}"
+BACKEND_REF="${EASYSVA_BACKEND_REF:-a19b859ba37fd90d83a30f9fe7fc90666d9d3d05}"
+WEB_REF="${EASYSVA_WEB_REF:-39197abe6da0f5e39ab934af9967fe77546bc6a7}"
 WVP_REPO="${EASYSVA_WVP_REPO:-https://github.com/648540858/wvp-GB28181-pro.git}"
 WVP_REF="${EASYSVA_WVP_REF:-fb45787da01cb4f33a0b1dfaa613becf67391c17}"
 GB_SIMULATOR_REPO="${EASYSVA_GB_SIMULATOR_REPO:-https://github.com/sb-im/sbgb28181.git}"
@@ -25,6 +25,9 @@ WVP_DB_PASSWORD="${EASYSVA_WVP_DB_PASSWORD:-easySVA.GB28181}"
 GB28181_SIP_PASSWORD="${EASYSVA_GB28181_SIP_PASSWORD:-admin123}"
 GB28181_ZLM_SECRET="${EASYSVA_GB28181_ZLM_SECRET:-easySVA.GB28181.ZLM}"
 GB28181_HOST_IP="${EASYSVA_GB28181_HOST_IP:-}"
+SLEEP_POSE_MODEL_SOURCE="${EASYSVA_SLEEP_POSE_MODEL:-}"
+SAMPLE_SOURCES_AUTO_START="${EASYSVA_AUTO_START_SAMPLE_SOURCES:-0}"
+SLEEP_DETECT_FPS="${EASYSVA_SLEEP_DETECT_FPS:-}"
 SQL_FILE="$SCRIPT_DIR/data_20250520.sql"
 
 checkout_repo_at_ref() {
@@ -70,6 +73,21 @@ fi
 if [[ ! -f "$SQL_FILE" ]]; then
     echo "未找到数据库初始化文件: $SQL_FILE"
     echo "请从FWWsva仓库完整克隆后运行install_source.sh。"
+    exit 1
+fi
+
+if [[ -n "$SLEEP_POSE_MODEL_SOURCE" && ! -s "$SLEEP_POSE_MODEL_SOURCE" ]]; then
+    echo "EASYSVA_SLEEP_POSE_MODEL 指向的文件不存在或为空: $SLEEP_POSE_MODEL_SOURCE" >&2
+    exit 1
+fi
+
+if [[ "$SAMPLE_SOURCES_AUTO_START" != "0" && "$SAMPLE_SOURCES_AUTO_START" != "1" ]]; then
+    echo "EASYSVA_AUTO_START_SAMPLE_SOURCES 只允许 0 或 1。" >&2
+    exit 1
+fi
+
+if [[ -n "$SLEEP_DETECT_FPS" && ! "$SLEEP_DETECT_FPS" =~ ^([1-9]|[12][0-9]|30)$ ]]; then
+    echo "EASYSVA_SLEEP_DETECT_FPS 必须是 1 到 30 的整数。" >&2
     exit 1
 fi
 
@@ -190,6 +208,24 @@ mkdir -p /opt/SVA/tmp/trt_cache
 
 cd /opt/easySVA-lib/
 mv /opt/easySVA-lib/models /opt/SVA/ 
+if [[ -n "$SLEEP_POSE_MODEL_SOURCE" ]]; then
+    install -m 0644 "$SLEEP_POSE_MODEL_SOURCE" /opt/SVA/models/yolo11n-pose.onnx
+fi
+if [[ -s /opt/SVA/models/yolo11n-pose.onnx ]]; then
+    SLEEP_DEMO_ENABLED=1
+    if [[ -z "$SLEEP_DETECT_FPS" ]]; then
+        if [[ "$gpu_answer" == "g" || "$gpu_answer" == "G" ]]; then
+            SLEEP_DETECT_FPS=10
+        else
+            SLEEP_DETECT_FPS=1
+        fi
+    fi
+    echo "已准备睡岗姿态模型；检测帧率为 ${SLEEP_DETECT_FPS} FPS。"
+    echo "睡岗任务默认停止；确认机器负载后再从页面逐路启动。"
+else
+    SLEEP_DEMO_ENABLED=0
+    echo "未提供 yolo11n-pose.onnx；跳过睡岗演示任务，普通分析和 GB28181 功能仍可使用。"
+fi
 
 add-apt-repository -y main restricted universe multiverse
 apt update
@@ -403,6 +439,12 @@ sleep 2
 checkout_repo_at_ref "$REPO_BASE/SVA-server.git" \
     /opt/SVA/SVA-server "$ANALYZER_REF"
 
+if [[ "$SLEEP_DEMO_ENABLED" == "1" ]]; then
+    install -m 0644 \
+        /opt/SVA/SVA-server/prototypes/sleep_pose/models/open-closed-eye-0001.onnx \
+        /opt/SVA/models/open-closed-eye-0001.onnx
+fi
+
 # CPU版本始终编译，作为自动回退路径。
 echo "编译CPU版本的Analyzer"
 sleep 2
@@ -465,12 +507,20 @@ EOF
 mysql -uroot -peasySVA.EZ easySVA < "$SQL_FILE"
 mysql -uroot -peasySVA.EZ easySVA < \
     "$SCRIPT_DIR/deploy/sql/20260901_gb28181_business.sql"
-mysql -uroot -peasySVA.EZ easySVA < \
-    "$SCRIPT_DIR/deploy/sql/20260903_add_test3_sleep_source.sql"
-mysql -uroot -peasySVA.EZ easySVA < \
-    "$SCRIPT_DIR/deploy/sql/20260903_tune_sleep_detection.sql"
-mysql -uroot -peasySVA.EZ easySVA < \
-    "$SCRIPT_DIR/deploy/sql/20260903_mixed_gb_rtsp_sources.sql"
+if [[ "$SLEEP_DEMO_ENABLED" == "1" ]]; then
+    mysql -uroot -peasySVA.EZ easySVA < \
+        "$SCRIPT_DIR/deploy/sql/20260903_add_test3_sleep_source.sql"
+    mysql -uroot -peasySVA.EZ easySVA < \
+        "$SCRIPT_DIR/deploy/sql/20260903_tune_sleep_detection.sql"
+    mysql -uroot -peasySVA.EZ easySVA < \
+        "$SCRIPT_DIR/deploy/sql/20260903_mixed_gb_rtsp_sources.sql"
+    mysql -uroot -peasySVA.EZ easySVA <<EOF
+UPDATE deployment_task_algorithm
+SET detect_fps = ${SLEEP_DETECT_FPS}, update_time = NOW()
+WHERE deployment_id IN ('controliDWtaBsTRom2rH', 'controlH87UlyOJCtFwOq', 'controlTest3Sleep20260903', 'controlGbTest3Sleep20260903')
+  AND algorithm_code = 'on_yolo11n_pose_sleep';
+EOF
+fi
 
 
 
@@ -703,6 +753,8 @@ if [[ "$deploy_choice" =~ ^[Yy]$ ]]; then
 
     install -m 0755 "$SCRIPT_DIR/deploy/scripts/easysva-analyzer-launcher.sh" \
         /opt/SVA/server/easysva-analyzer-launcher.sh
+    install -m 0755 "$SCRIPT_DIR/deploy/scripts/easysva-rtsp-simulator.sh" \
+        /opt/SVA/server/easysva-rtsp-simulator.sh
     install -m 0755 "$SCRIPT_DIR/deploy/scripts/easysva-restore-streams.sh" \
         /opt/SVA/server/easysva-restore-streams.sh
     install -m 0644 "$SCRIPT_DIR/deploy/systemd/easysva-backend.service" \
@@ -740,9 +792,11 @@ if [[ "$deploy_choice" =~ ^[Yy]$ ]]; then
 
     systemctl daemon-reload
     systemctl enable easysva-backend easysva-media easysva-analyzer easysva-stream-restore \
-        easysva-rtsp-simulator easysva-rtsp-simulator-2 easysva-rtsp-simulator-3 \
-        easysva-gb-media easysva-wvp easysva-gb-simulator-test6 \
-        easysva-gb-simulator-test3 nginx mariadb redis-server
+        easysva-gb-media easysva-wvp nginx mariadb redis-server
+    if [[ "$SAMPLE_SOURCES_AUTO_START" == "1" ]]; then
+        systemctl enable easysva-rtsp-simulator easysva-rtsp-simulator-2 \
+            easysva-rtsp-simulator-3 easysva-gb-simulator-test6 easysva-gb-simulator-test3
+    fi
 
 fi
 

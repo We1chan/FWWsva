@@ -8,16 +8,18 @@ repo_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/../.." && pwd)"
 launcher="$repo_dir/deploy/scripts/easysva-wvp-launcher.sh"
 simulator_launcher="$repo_dir/deploy/scripts/easysva-gb-simulator-launcher.sh"
 health="$repo_dir/deploy/scripts/easysva-gb-health.sh"
+simulator="$repo_dir/deploy/scripts/easysva-rtsp-simulator.sh"
 
 bash -n "$repo_dir/install_source.sh"
 bash -n "$launcher"
 bash -n "$simulator_launcher"
 bash -n "$health"
+bash -n "$simulator"
 
 grep -q 'EASYSVA_MEDIA_SERVER_REF:-95eda58fcf3e8ed401d404f825cfbc434362af34' "$repo_dir/install_source.sh"
 grep -q 'EASYSVA_SERVER_REF:-f49d60183014117152607be2b592a72776db6f9f' "$repo_dir/install_source.sh"
-grep -q 'EASYSVA_BACKEND_REF:-bc978100a6c3bdcea0d6da542ca064c83dde1369' "$repo_dir/install_source.sh"
-grep -q 'EASYSVA_WEB_REF:-6012ed5dc2d2a10b9948af84bb23168ce59306f8' "$repo_dir/install_source.sh"
+grep -q 'EASYSVA_BACKEND_REF:-a19b859ba37fd90d83a30f9fe7fc90666d9d3d05' "$repo_dir/install_source.sh"
+grep -q 'EASYSVA_WEB_REF:-39197abe6da0f5e39ab934af9967fe77546bc6a7' "$repo_dir/install_source.sh"
 grep -q 'EASYSVA_GB_SIMULATOR_REF:-1da9bc62134d4cb1fd4374f733583fb5997c3f0a' "$repo_dir/install_source.sh"
 grep -q 'sbgb28181-fixed-local-port.patch' "$repo_dir/install_source.sh"
 grep -q 'git -C "$target_dir" fetch --depth=1 origin "$ref"' "$repo_dir/install_source.sh"
@@ -25,6 +27,11 @@ grep -q 'java-17-openjdk-amd64' "$repo_dir/deploy/systemd/easysva-backend.servic
 grep -q '001_extend_h_device.sql' "$repo_dir/install_source.sh"
 grep -q '20260901_gb28181_business.sql' "$repo_dir/install_source.sh"
 grep -q '20260903_mixed_gb_rtsp_sources.sql' "$repo_dir/install_source.sh"
+if grep -qw 'object_count' \
+    "$repo_dir/deploy/sql/20260901_gb28181_business.sql"; then
+    echo "GB28181业务迁移仍依赖旧版 av_algorithm 的可选字段。" >&2
+    exit 1
+fi
 grep -q '002_add_gb_stream_url.sql' "$repo_dir/install_source.sh"
 grep -q 'easysva-gb-media easysva-wvp' "$repo_dir/install_source.sh"
 grep -q 'easysva-gb-simulator-test6' "$repo_dir/install_source.sh"
@@ -40,6 +47,28 @@ grep -q 'EASYSVA_GB_ENV_FILE:-/etc/easySVA/gb28181.env' "$health"
 grep -q 'EASYSVA_WEB_HEALTH_URL:-http://127.0.0.1/' "$health"
 grep -q -- '--data-urlencode "secret=$zlm_secret"' "$health"
 grep -q 'check_tcp "原 RTSP" 127.0.0.1 9994' "$health"
+grep -q 'easysva-rtsp-simulator.sh' "$repo_dir/install_source.sh"
+grep -q 'EASYSVA_SLEEP_POSE_MODEL' "$repo_dir/install_source.sh"
+grep -q 'EASYSVA_AUTO_START_SAMPLE_SOURCES:-0' "$repo_dir/install_source.sh"
+grep -q 'EASYSVA_SLEEP_DETECT_FPS' "$repo_dir/install_source.sh"
+grep -q 'if \[\[ "$SLEEP_DEMO_ENABLED" == "1" \]\]; then' "$repo_dir/install_source.sh"
+if grep -q "live/mock-camera.*'RUNNING'" \
+    "$repo_dir/deploy/sql/20260903_add_test3_sleep_source.sql"; then
+    echo "睡岗样例设备仍然默认自动运行。" >&2
+    exit 1
+fi
+if grep -q "live.flv', 'RUNNING'" \
+    "$repo_dir/deploy/sql/20260903_add_test3_sleep_source.sql"; then
+    echo "睡岗样例任务仍然默认自动运行。" >&2
+    exit 1
+fi
+for simulator_unit in "$repo_dir"/deploy/systemd/easysva-rtsp-simulator*.service; do
+    grep -q '/opt/SVA/server/easysva-rtsp-simulator.sh' "$simulator_unit"
+    if grep -q -- '-c:v h264_nvenc' "$simulator_unit"; then
+        echo "systemd 单元仍然硬编码了 NVIDIA 编码器: $simulator_unit" >&2
+        exit 1
+    fi
+done
 
 if EASYSVA_WVP_DB_NAME='invalid-name' bash "$repo_dir/install_source.sh" \
     > /dev/null 2>&1; then
