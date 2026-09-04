@@ -1,20 +1,27 @@
 -- Install the three local RTSP sample cameras and their sleep-duty tasks.
 -- The legacy filename is retained because older deployments may already refer to it.
 -- Idempotent: safe to run again after pulling a newer checkout.
+-- Cross-device safety: records are installed STOPPED. Start one task from the
+-- UI only after its media source and model are ready and machine load is known.
+
+-- Match the backend GB28181 default organization. A custom organization can be
+-- supplied as session variables before sourcing this file (and the mixed file).
+SET @easysva_sample_org_index = COALESCE(@easysva_sample_org_index, '103');
+SET @easysva_sample_org_name = COALESCE(@easysva_sample_org_name, '研发部门');
 
 INSERT INTO h_device
     (ape_id, name, org_index, org_name, is_online, stream_source_type,
      direct_source_url, monitor_status, zlm_server_id, sva_server_id,
      play_url, zlm_proxy_key, device_type, create_time, update_time)
 VALUES
-    ('cam228703', '模拟RTSP摄像头-test6', '10', '总公司', '1', 'DIRECT',
-     'rtsp://127.0.0.1:9994/live/mock-camera', 'RUNNING', 1, 1,
+    ('cam228703', '模拟RTSP摄像头-test6', @easysva_sample_org_index, @easysva_sample_org_name, '1', 'DIRECT',
+     'rtsp://127.0.0.1:9994/live/mock-camera', 'STOPPED', 1, 1,
      'ws://127.0.0.1:9992/live/cam228703.live.flv', '__defaultVhost__/live/cam228703', 'RTSP', NOW(), NOW()),
-    ('cam228704', '模拟RTSP摄像头-test8', '10', '总公司', '1', 'DIRECT',
-     'rtsp://127.0.0.1:9994/live/mock-camera-2', 'RUNNING', 1, 1,
+    ('cam228704', '模拟RTSP摄像头-test8', @easysva_sample_org_index, @easysva_sample_org_name, '1', 'DIRECT',
+     'rtsp://127.0.0.1:9994/live/mock-camera-2', 'STOPPED', 1, 1,
      'ws://127.0.0.1:9992/live/cam228704.live.flv', '__defaultVhost__/live/cam228704', 'RTSP', NOW(), NOW()),
-    ('cam228705', '模拟RTSP摄像头-test3', '10', '总公司', '1', 'DIRECT',
-     'rtsp://127.0.0.1:9994/live/mock-camera-3', 'RUNNING', 1, 1,
+    ('cam228705', '模拟RTSP摄像头-test3', @easysva_sample_org_index, @easysva_sample_org_name, '1', 'DIRECT',
+     'rtsp://127.0.0.1:9994/live/mock-camera-3', 'STOPPED', 1, 1,
      'ws://127.0.0.1:9992/live/cam228705.live.flv', '__defaultVhost__/live/cam228705', 'RTSP', NOW(), NOW())
 ON DUPLICATE KEY UPDATE
     name = VALUES(name), org_index = VALUES(org_index), org_name = VALUES(org_name),
@@ -37,21 +44,21 @@ VALUES
      '{"regions":[{"id":"region_primary","name":"全画面","type":"polygon","primary":true,"closed":true,"points":[{"x":0.03,"y":0.03},{"x":0.97,"y":0.03},{"x":0.97,"y":0.97},{"x":0.03,"y":0.97}]}],"lines":[],"behaviorRules":[{"id":"sleep-rule-test6","name":"睡岗告警","customEventName":"睡岗告警","behaviorType":"sleep_duty","outputMode":"direct_alarm","enabled":true,"geometryType":"region","geometryId":"region_primary","thresholdMs":15000,"ruleObjectCode":"person"}]}',
      'rtsp://127.0.0.1:9994/live/cam228703',
      'rtmp://127.0.0.1:9995/analyzer/controliDWtaBsTRom2rH',
-     'ws://127.0.0.1:9992/analyzer/controliDWtaBsTRom2rH.live.flv', 'RUNNING', NOW(), NOW(), NOW()),
+     'ws://127.0.0.1:9992/analyzer/controliDWtaBsTRom2rH.live.flv', 'STOPPED', NULL, NOW(), NOW()),
     ('controlH87UlyOJCtFwOq', 'RTSP-test8-睡岗检测', 'cam228704',
      'on_yolo11n_pose_sleep', '睡岗检测（姿态+眼部）', 'person', 1, 0, 'A-SERVER', 30,
      0, 15000, 0, 'test8 全片：Pose 初筛 + 眼部确认 + 严格姿态回退',
      '{"regions":[{"id":"region_primary","name":"全画面","type":"polygon","primary":true,"closed":true,"points":[{"x":0.03,"y":0.03},{"x":0.97,"y":0.03},{"x":0.97,"y":0.97},{"x":0.03,"y":0.97}]}],"lines":[],"behaviorRules":[{"id":"sleep-rule-test8","name":"睡岗告警","customEventName":"睡岗告警","behaviorType":"sleep_duty","outputMode":"direct_alarm","enabled":true,"geometryType":"region","geometryId":"region_primary","thresholdMs":15000,"ruleObjectCode":"person"}]}',
      'rtsp://127.0.0.1:9994/live/cam228704',
      'rtmp://127.0.0.1:9995/analyzer/controlH87UlyOJCtFwOq',
-     'ws://127.0.0.1:9992/analyzer/controlH87UlyOJCtFwOq.live.flv', 'RUNNING', NOW(), NOW(), NOW()),
+     'ws://127.0.0.1:9992/analyzer/controlH87UlyOJCtFwOq.live.flv', 'STOPPED', NULL, NOW(), NOW()),
     ('controlTest3Sleep20260903', 'RTSP-test3-睡岗检测', 'cam228705',
      'on_yolo11n_pose_sleep', '睡岗检测（姿态+眼部）', 'person', 1, 0, 'A-SERVER', 30,
      0, 15000, 0, 'test3 全片：Pose 初筛 + 眼部确认 + 严格姿态回退',
      '{"regions":[{"id":"region_primary","name":"全画面","type":"polygon","primary":true,"closed":true,"points":[{"x":0.03,"y":0.03},{"x":0.97,"y":0.03},{"x":0.97,"y":0.97},{"x":0.03,"y":0.97}]}],"lines":[],"behaviorRules":[{"id":"sleep-rule-test3","name":"睡岗告警","customEventName":"睡岗告警","behaviorType":"sleep_duty","outputMode":"direct_alarm","enabled":true,"geometryType":"region","geometryId":"region_primary","thresholdMs":5000,"ruleObjectCode":"person"}]}',
      'rtsp://127.0.0.1:9994/live/cam228705',
      'rtmp://127.0.0.1:9995/analyzer/controlTest3Sleep20260903',
-     'ws://127.0.0.1:9992/analyzer/controlTest3Sleep20260903.live.flv', 'RUNNING', NOW(), NOW(), NOW())
+     'ws://127.0.0.1:9992/analyzer/controlTest3Sleep20260903.live.flv', 'STOPPED', NULL, NOW(), NOW())
 ON DUPLICATE KEY UPDATE
     task_name = VALUES(task_name), device_id = VALUES(device_id),
     algorithm_code = VALUES(algorithm_code), algorithm_name = VALUES(algorithm_name),
@@ -62,7 +69,7 @@ ON DUPLICATE KEY UPDATE
     ai_review_enabled = VALUES(ai_review_enabled), remark = VALUES(remark),
     geometry_config = VALUES(geometry_config), stream_url = VALUES(stream_url),
     push_stream_url = VALUES(push_stream_url), algorithm_stream_url = VALUES(algorithm_stream_url),
-    status = VALUES(status), update_time = NOW();
+    status = VALUES(status), start_time = VALUES(start_time), update_time = NOW();
 
 DELETE FROM deployment_task_algorithm
 WHERE deployment_id IN ('controliDWtaBsTRom2rH', 'controlH87UlyOJCtFwOq', 'controlTest3Sleep20260903')

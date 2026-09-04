@@ -11,7 +11,7 @@ NVIDIA GPU 电脑；GPU 只影响 AI 分析器，不影响本指南的国标链�
 | SIP 注册、心跳、目录、INVITE/BYE | 否 | WVP |
 | PS-RTP 接收、RTSP/HTTP/WebSocket 转换 | 否 | GB28181 专用 ZLMediaKit |
 | 设备字段、目录同步、在线状态、点播接口 | 否 | SVA-backend |
-| 设备管理、启动/停止监控、网页预览 | 否 | SVA-web |
+| 设备管理、启动/停止视频源、网页预览 | 否 | SVA-web |
 | YOLO/ONNX 视频分析 | 可选 CPU 或 NVIDIA GPU | SVA-server |
 
 因此，无独显电脑可以完整验证流媒体协议组。协作者有 NVIDIA 显卡时可以选择 GPU
@@ -25,9 +25,9 @@ NVIDIA GPU 电脑；GPU 只影响 AI 分析器，不影响本指南的国标链�
 - SVA-mediaServer：`95eda58fcf3e8ed401d404f825cfbc434362af34`。
 - SVA-server：`f49d60183014117152607be2b592a72776db6f9f`，包含 GB28181 流输入、
   `sleep_duty` 协议兼容和姿态+眼部睡岗状态机。
-- SVA-backend：`962a7e0fabb913334eb81663e1d9abda3a0be0d6`，包含完整 GB28181
+- SVA-backend：`a19b859ba37fd90d83a30f9fe7fc90666d9d3d05`，包含完整 GB28181
   数据模型、同步、点播、告警映射及 Analyzer 重启后的布控自动恢复。
-- SVA-web：`e21712586d78114d2122ab42029a7c965e5aebae`，包含 GB28181
+- SVA-web：`39197abe6da0f5e39ab934af9967fe77546bc6a7`，包含 GB28181
   设备管理、同源媒体地址转换、布控预览和大屏算法流播放修复。
 - wvp-GB28181-pro：`fb45787da01cb4f33a0b1dfaa613becf67391c17`。
 - 软件相机 sbgb28181：`1da9bc62134d4cb1fd4374f733583fb5997c3f0a`。
@@ -79,6 +79,16 @@ export EASYSVA_GB28181_SIP_PASSWORD='replace_with_a_strong_password'
 export EASYSVA_GB28181_ZLM_SECRET='replace_with_a_private_zlm_secret'
 export EASYSVA_WVP_DB_PASSWORD='replace_with_a_database_password'
 
+# 仅在需要复现“睡岗检测”时设置。该模型不随 Git 仓库分发；省略后安装器会跳过
+# 四路睡岗演示配置，但普通 YOLO、GB28181 接入和视频预览仍然可用。
+# export EASYSVA_SLEEP_POSE_MODEL=/opt/models/yolo11n-pose.onnx
+
+# 默认不启用演示视频源自启动。1 只启用推流/软件相机，不会自动运行算法任务。
+export EASYSVA_AUTO_START_SAMPLE_SOURCES=0
+
+# 省略时 GPU 默认 10 FPS、CPU 默认 1 FPS，也可以按机器能力显式覆盖。
+export EASYSVA_SLEEP_DETECT_FPS=1
+
 chmod +x /opt/FWWsva/install_source.sh
 /opt/FWWsva/install_source.sh
 ```
@@ -89,6 +99,15 @@ chmod +x /opt/FWWsva/install_source.sh
 - `nvidia-smi` 正常、驱动版本不低于安装器提示且要验证 AI 分析：输入 `G`。
 - WSL2 的 NVIDIA 驱动安装在 Windows 主机侧，不要在 WSL 内重复安装 Linux 驱动。
 - GPU 模式也会构建 CPU 回退版本；启动器检测到 GPU 运行库不完整时会改用 CPU。
+- 三路演示视频的推流器会实际探测 NVENC：NVIDIA 驱动和编码器都可用时使用
+  `h264_nvenc`，否则自动使用 CPU `libx264`，无需手工修改 systemd 单元。
+- `yolo11n-pose.onnx` 不在仓库中。要运行睡岗模型，先按
+  `SVA-server/prototypes/sleep_pose/README.md` 导出并通过
+  `EASYSVA_SLEEP_POSE_MODEL` 提供；安装器会同时部署仓库内的眼部模型。未提供时不会
+  写入状态为 `RUNNING` 的睡岗任务，防止新电脑启动后反复恢复一个无法加载的模型。
+- 即使模型存在，四路睡岗任务也默认不运行。CPU 机器先以 1 FPS 手工启动一路验证；
+  NVIDIA GPU 机器确认驱动、显存和 Analyzer 日志后，再从页面逐路启动算法任务。
+  `EASYSVA_AUTO_START_SAMPLE_SOURCES=1` 只启用输入视频源开机自启动，不改变算法任务状态。
 
 安装完成并选择部署后，重启系统或执行：
 
@@ -107,6 +126,10 @@ sudo easysva-gb-health
 `EASYSVA_WEB_HEALTH_URL` 指向实际地址。
 
 ## 4. 已有环境升级
+
+不要在有数据的电脑上重跑全新安装器。先记录五个仓库的提交与本机配置，备份数据库，
+再用 `git fetch` 比较变更，确认没有覆盖本机配置后 `git merge --ff-only` 更新。
+有未提交改动时先保留，不能用 `reset --hard` 强行同步。随后执行增量迁移、编译和复验。
 
 已有电脑出现 `Unknown column 'device_type' in 'field list'`，说明代码已升级但业务库
 没有执行完整迁移，并不表示五个仓库的字段定义互相冲突。先备份，再执行幂等迁移：
@@ -196,6 +219,60 @@ UDP 完成验收。确需 TCP 时，应由管理员调整 Windows 排除范围�
 HTTP/WS 时会受到 mixed content 限制，应统一代理为同源 HTTPS/WSS，而不是关闭浏览器
 安全策略。
 
+生产 Nginx 和前端开发服务器都需要 `/live`、`/analyzer`、`/media`、`/gb-media`
+这四类同源代理。开发环境可通过 `VUE_APP_BACKEND_URL`、`VUE_APP_MEDIA_URL`、
+`VUE_APP_GB_MEDIA_URL` 覆盖服务端目标；修改后重启开发服务器。不要把浏览器上的
+`localhost` 当成远端部署机 IP。同一台机器上的代理目标可以是回环地址，浏览器只访问站点域名。
+
+Linux 启动脚本、systemd 单元和 `.patch` 文件必须保持 LF 换行；仓库已通过
+`.gitattributes` 固定。Windows 下载的旧补丁若应用失败，先检查换行，再确认锁定的源码版本。
+
+### 5.4 最新四路演示与 CPU 模型边界
+
+最新演示布局为 GB28181-test6、RTSP-test8、RTSP-test3、GB28181-test3。
+两个国标源虽从本地 RTSP 视频取素材，对平台仍走真正的 SIP → INVITE → PS-RTP 链路，
+不是把 RTSP 地址标记成国标设备。test3 的原始推流可被 RTSP 与 GB 软件相机共用。
+
+已有环境如要升级这组演示数据，备份后按顺序应用 `20260903_add_test3_sleep_source.sql`、
+`20260903_tune_sleep_detection.sql`、`20260903_mixed_gb_rtsp_sources.sql`。
+注意它们是演示配置迁移：会替换指定大屏槽位，把 test6 任务改绑到国标设备，并删除旧
+`cam228703` 演示设备；不要对自行改名复用的演示 ID 盲目执行。CPU 机器还应将这四个
+任务的 `deployment_task_algorithm.detect_fps` 设为 1，并保持任务未运行，再逐个验证。
+
+演示设备默认归属组织 `103/研发部门`，与后端国标同步默认值一致。若使用自定义组织，
+在同一个 MySQL 会话执行脚本前设置 `@easysva_sample_org_index`、
+`@easysva_sample_org_name`，并把后端 `GB28181_DEFAULT_ORG_INDEX`、
+`GB28181_DEFAULT_ORG_NAME` 设成同样的值。否则账号的组织过滤可能让“数据库里有设备，
+页面却看不见”。不要通过关闭权限校验解决。
+
+本机已验证姿态模型可在 CPU 上加载并运行。30 帧短测约 2.38 FPS，这是特定视频与
+软件版本下的观察值，不是所有电脑的保证；也不代表四路实时运行或睡岗告警准确率已验收。
+建议从一路、1 FPS 开始。没有姿态模型时可以完全跳过 AI，照常验收国标注册与预览。
+
+单路 test3 输入启动示例（不启动算法）：
+
+```bash
+sudo systemctl start easysva-rtsp-simulator-3
+# 还要验证同一素材的国标路径时再启动：
+sudo systemctl start easysva-gb-simulator-test3
+```
+
+软件相机从 `/etc/easySVA/gb28181.env` 读取 IP、SIP 密码；默认按 WVP 相同方式探测本机 IP。
+若 WVP 在另一台机器，分别设置 `GB28181_SERVER_IP` 和 `GB28181_LOCAL_IP`，后者必须
+是软件相机所在电脑的实际 IP。`GB28181_SIP_PORT` 可覆盖 SIP 端口。
+
+安装或替换模型时可以使用摘要校验工具，摘要应由模型提供者通过可信渠道确认：
+
+```bash
+sudo bash /opt/FWWsva/deploy/scripts/install-sleep-models.sh \
+  /path/to/yolo11n-pose.onnx VERIFIED_SHA256 /opt/SVA/models \
+  /opt/SVA/SVA-server/prototypes/sleep_pose/models/open-closed-eye-0001.onnx
+sudo systemctl restart easysva-analyzer
+```
+
+该工具校验失败不会覆盖现有文件；成功替换前保留 `.backup-*`。重启后确认模型加载日志，
+再在「布控任务」启动一路。只看到进程存活不能作为模型加载成功的证据。
+
 ## 6. 软件相机验收点 3
 
 没有实体 IPC 时使用锁定版本的 `sbgb28181`，具体安装依赖见
@@ -214,12 +291,14 @@ bash deploy/gb28181/scripts/simulator-start.sh
 浏览器进入「视频智能分析 → 设备管理」，按以下顺序演示：
 
 1. 点击「同步国标设备」，列表出现接入类型为 `GB28181`、名称为 `ch1` 的在线设备。
-2. 点击「启动监控」，页面提示成功且监控状态变为运行中。
+2. 点击「启动视频源」（旧版叫「启动监控」），页面提示成功且视频状态变为播放中。
 3. 点击「预览视频」，持续显示彩条测试画面。彩条右下角的一小块雪花属于标准测试源，
    不是解码故障。
-4. 关闭预览并点击「停止监控」，页面提示成功。
+4. 关闭预览并点击「停止视频源」，页面提示成功。如果该视频源还有运行中的布控，
+   应先在「布控任务」停止布控；新版会阻止中断正在被算法使用的视频源。
 5. 再次点击「预览视频」，必须提示“GB28181 设备尚未启动点播，请先启动监控”。
-6. 在模拟器终端按 `Ctrl+C`。等待心跳超时后设备变为离线；离线状态不得启动点播。
+6. 在模拟器终端按 `Ctrl+C`（systemd 相机则停止对应服务）。等待心跳超时后设备变为离线；
+   当前默认 60 秒心跳、3 次缺失，约 3 分钟后判离线，再加平台同步周期。离线状态不得启动点播。
 7. 重新运行模拟器，设备恢复在线且可再次预览。
 8. 同时预览一台原有 RTSP 设备，证明旧链路未被国标旁路改造破坏。
 
