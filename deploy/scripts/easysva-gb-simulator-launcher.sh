@@ -6,17 +6,31 @@
 set -euo pipefail
 
 env_file="${EASYSVA_GB_ENV_FILE:-/etc/easySVA/gb28181.env}"
-simulator_root="${EASYSVA_GB_SIMULATOR_DIR:-/opt/SVA/sbgb28181}"
-plugin_build="$simulator_root/gst-gb28181sink/build"
-wvp_base_url="${GB28181_WVP_BASE_URL:-http://127.0.0.1:18080}"
-server_ip="${GB28181_SERVER_IP:-127.0.0.1}"
-local_ip="${GB28181_LOCAL_IP:-127.0.0.1}"
-local_port="${GB28181_LOCAL_PORT:-0}"
 
 if [[ -r "$env_file" ]]; then
     # shellcheck disable=SC1090
     source "$env_file"
 fi
+
+# Derive defaults after loading the shared configuration. WVP can bind only to
+# the advertised LAN address, so loopback is not always a valid SIP destination.
+simulator_root="${EASYSVA_GB_SIMULATOR_DIR:-/opt/SVA/sbgb28181}"
+plugin_build="$simulator_root/gst-gb28181sink/build"
+wvp_base_url="${GB28181_WVP_BASE_URL:-http://127.0.0.1:18080}"
+host_ip="${GB28181_HOST_IP:-}"
+if [[ -z "$host_ip" ]]; then
+    host_ip="$(ip -4 route get 1.1.1.1 2>/dev/null |
+        sed -n 's/.* src \([^ ]*\).*/\1/p' | head -n 1)"
+fi
+if [[ -z "$host_ip" ]]; then
+    host_ip="$(hostname -I 2>/dev/null | awk '{print $1}')"
+fi
+server_ip="${GB28181_SERVER_IP:-$host_ip}"
+local_ip="${GB28181_LOCAL_IP:-$host_ip}"
+: "${server_ip:?Set GB28181_SERVER_IP or GB28181_HOST_IP}"
+: "${local_ip:?Set GB28181_LOCAL_IP or GB28181_HOST_IP}"
+server_port="${GB28181_SIP_PORT:-5060}"
+local_port="${GB28181_LOCAL_PORT:-0}"
 
 : "${GB28181_DEVICE_ID:?GB28181_DEVICE_ID is required}"
 : "${GB28181_CHANNEL_ID:?GB28181_CHANNEL_ID is required}"
@@ -73,7 +87,7 @@ gst-inspect-1.0 mpegpsmux >/dev/null
 
 exec python3 "$simulator_root/gb28181_pusher.py" \
     --server-ip "$server_ip" \
-    --server-port 5060 \
+    --server-port "$server_port" \
     --server-id "$server_id" \
     --domain "$domain" \
     --agent-id "$GB28181_DEVICE_ID" \

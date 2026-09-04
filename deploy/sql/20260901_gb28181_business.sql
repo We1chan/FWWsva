@@ -95,11 +95,10 @@ WHERE NOT EXISTS (SELECT 1 FROM h_waring_type WHERE alarm_type = 'SLEEP_DUTY');
 -- The Analyzer resolves this code to yolo11n-pose.onnx plus the bundled eye
 -- classifier and only exposes person as a selectable target.
 INSERT INTO av_algorithm
-    (sort, code, name, api_url, object_count, object_str, remark, state, create_time, update_time)
+    (sort, code, name, api_url, object_str, state)
 SELECT
     COALESCE((SELECT MAX(existing.sort) + 1 FROM av_algorithm existing), 0),
-    'on_yolo11n_pose_sleep', '睡岗检测（姿态+眼部）', '', 1, 'person',
-    'YOLO Pose 初筛、眼部确认，眼部不可见时使用严格姿态回退', 0, NOW(), NOW()
+    'on_yolo11n_pose_sleep', '睡岗检测（姿态+眼部）', '', 'person', 0
 WHERE NOT EXISTS (
     SELECT 1 FROM av_algorithm WHERE code = 'on_yolo11n_pose_sleep'
 );

@@ -4,6 +4,9 @@
 -- The two GB ape_id values are Java UUID.nameUUIDFromBytes(deviceId:channelId)
 -- outputs, so the WVP catalog scheduler upserts these same rows.
 
+SET @easysva_sample_org_index = COALESCE(@easysva_sample_org_index, '103');
+SET @easysva_sample_org_name = COALESCE(@easysva_sample_org_name, '研发部门');
+
 INSERT INTO h_device
     (ape_id, name, device_type, stream_source_type, gb_device_id, gb_channel_id,
      gb_media_server_id, resource_type, org_index, org_name, is_online,
@@ -11,10 +14,10 @@ INSERT INTO h_device
 VALUES
     ('GB_9e678b6ebac4374fb590056a2d16b046', 'GB28181-test6', 'GB28181', 'GB28181',
      '44010200491320000006', '44010200491320000016', 'easysva-gb28181',
-     'GB28181', '103', '研发部门', '0', 1, 1, 'STOPPED', NOW(), NOW()),
+     'GB28181', @easysva_sample_org_index, @easysva_sample_org_name, '0', 1, 1, 'STOPPED', NOW(), NOW()),
     ('GB_f69bf7102081394fb64b6fcd68899b47', 'GB28181-test3', 'GB28181', 'GB28181',
      '44010200491320000003', '44010200491320000013', 'easysva-gb28181',
-     'GB28181', '103', '研发部门', '0', 1, 1, 'STOPPED', NOW(), NOW())
+     'GB28181', @easysva_sample_org_index, @easysva_sample_org_name, '0', 1, 1, 'STOPPED', NOW(), NOW())
 ON DUPLICATE KEY UPDATE
     name = VALUES(name), device_type = 'GB28181', stream_source_type = 'GB28181',
     gb_device_id = VALUES(gb_device_id), gb_channel_id = VALUES(gb_channel_id),
