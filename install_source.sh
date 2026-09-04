@@ -14,7 +14,7 @@ REPO_BASE="${EASYSVA_REPO_BASE:-https://github.com/We1chan}"
 MEDIA_SERVER_REF="${EASYSVA_MEDIA_SERVER_REF:-95eda58fcf3e8ed401d404f825cfbc434362af34}"
 ANALYZER_REF="${EASYSVA_SERVER_REF:-f49d60183014117152607be2b592a72776db6f9f}"
 BACKEND_REF="${EASYSVA_BACKEND_REF:-bc978100a6c3bdcea0d6da542ca064c83dde1369}"
-WEB_REF="${EASYSVA_WEB_REF:-e21712586d78114d2122ab42029a7c965e5aebae}"
+WEB_REF="${EASYSVA_WEB_REF:-6012ed5dc2d2a10b9948af84bb23168ce59306f8}"
 WVP_REPO="${EASYSVA_WVP_REPO:-https://github.com/648540858/wvp-GB28181-pro.git}"
 WVP_REF="${EASYSVA_WVP_REF:-fb45787da01cb4f33a0b1dfaa613becf67391c17}"
 GB_SIMULATOR_REPO="${EASYSVA_GB_SIMULATOR_REPO:-https://github.com/sb-im/sbgb28181.git}"
@@ -580,6 +580,36 @@ server {
 
         location /media/ {
             proxy_pass http://127.0.0.1:9992/;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+            proxy_set_header Host $http_host;
+            proxy_read_timeout 600s;
+            proxy_buffering off;
+        }
+
+        location /live/ {
+            proxy_pass http://127.0.0.1:9992;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+            proxy_set_header Host $http_host;
+            proxy_read_timeout 600s;
+            proxy_buffering off;
+        }
+
+        location /analyzer/ {
+            proxy_pass http://127.0.0.1:9992;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+            proxy_set_header Host $http_host;
+            proxy_read_timeout 600s;
+            proxy_buffering off;
+        }
+
+        location /gb-media/ {
+            proxy_pass http://127.0.0.1:9996/;
             proxy_http_version 1.1;
             proxy_set_header Upgrade $http_upgrade;
             proxy_set_header Connection "upgrade";
