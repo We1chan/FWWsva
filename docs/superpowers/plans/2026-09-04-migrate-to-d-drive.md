@@ -16,7 +16,7 @@
 - Create: `FWWsva/docs/superpowers/plans/2026-09-04-migrate-to-d-drive.md`
 - Preserve: every video matching `*.mp4`, `*.mov`, `*.avi`, `*.mkv`, `*.webm`, `*.m4v`, `*.wmv`, or `*.flv`
 
-- [ ] **Step 1: Confirm the destination and disk capacity**
+- [x] **Step 1: Confirm the destination and disk capacity**
 
 Run:
 
@@ -27,13 +27,13 @@ Get-PSDrive -Name D
 
 Expected: the destination is empty and D has more than 70 GiB free.
 
-- [ ] **Step 2: Capture repository status and remotes**
+- [x] **Step 2: Capture repository status and remotes**
 
 Run `git status --short --branch`, `git remote -v`, and `git log -1 --format=%H` in `FWWsva`, `SVA-backend`, `SVA-mediaServer`, `SVA-server`, and `SVA-web`.
 
 Expected: each primary repository resolves `HEAD`; any untracked files are recorded and copied without modification.
 
-- [ ] **Step 3: Capture user-video hashes**
+- [x] **Step 3: Capture user-video hashes**
 
 Run `Get-FileHash -Algorithm SHA256` for video files outside dependency caches such as `node_modules`.
 
@@ -46,7 +46,7 @@ Expected: a baseline list of relative paths, byte lengths, and SHA-256 hashes is
 - Create/update: `D:\19904\sva\**`
 - Exclude from this copy only: `C:\Users\19904\Documents\ChatGPT\sva\dependencies\wsl\Ubuntu-22.04-easySVA`
 
-- [ ] **Step 1: Copy all non-VHDX project files and metadata**
+- [x] **Step 1: Copy all non-VHDX project files and metadata**
 
 Run:
 
@@ -56,7 +56,7 @@ robocopy 'C:\Users\19904\Documents\ChatGPT\sva' 'D:\19904\sva' /E /COPY:DAT /DCO
 
 Expected: Robocopy exit code is 0 through 7; `.git` directories, untracked files, source, dependencies, and videos are present on D.
 
-- [ ] **Step 2: Verify the staged tree**
+- [x] **Step 2: Verify the staged tree**
 
 Run a Robocopy list-only comparison using the same exclusions, and compare repository `HEAD`, remotes, worktree status, and user-video hashes between C and D.
 
@@ -68,7 +68,7 @@ Expected: no missing or differing copied files; primary repository identity/stat
 - Move registration storage from: `C:\Users\19904\Documents\ChatGPT\sva\dependencies\wsl\Ubuntu-22.04-easySVA`
 - Move registration storage to: `D:\19904\sva\dependencies\wsl\Ubuntu-22.04-easySVA`
 
-- [ ] **Step 1: Stop the easySVA distribution cleanly**
+- [x] **Step 1: Stop the easySVA distribution cleanly**
 
 Run:
 
@@ -79,7 +79,7 @@ wsl --terminate Ubuntu-22.04-easySVA
 
 Expected: the distribution state becomes `Stopped`.
 
-- [ ] **Step 2: Move the WSL virtual disk using the supported WSL operation**
+- [x] **Step 2: Move the WSL virtual disk using the supported WSL operation**
 
 Run:
 
@@ -89,7 +89,7 @@ wsl --manage Ubuntu-22.04-easySVA --move 'D:\19904\sva\dependencies\wsl\Ubuntu-2
 
 Expected: the command succeeds, registry `BasePath` points to D, and the VHDX no longer resides in the former C path.
 
-- [ ] **Step 3: Start WSL and all easySVA services**
+- [x] **Step 3: Start WSL and all easySVA services**
 
 Run the D-drive launcher or its equivalent service-start sequence, including stream restoration.
 
@@ -101,23 +101,23 @@ Expected: WSL starts under the same distribution name and the launcher reaches i
 - Verify: `D:\19904\sva\FWWsva\启动easySVA.bat`
 - Verify: WSL systemd units and HTTP endpoints
 
-- [ ] **Step 1: Verify WSL and services**
+- [x] **Step 1: Verify WSL and services**
 
 Run `wsl -l -v`, inspect the registry `BasePath`, and check `systemctl is-active` for MariaDB, Redis, nginx, backend, media server, analyzer, and fake-camera services.
 
 Expected: `Ubuntu-22.04-easySVA` is WSL 2, its storage is on D, and required services are active.
 
-- [ ] **Step 2: Verify ports and HTTP health**
+- [x] **Step 2: Verify ports and HTTP health**
 
 Run WSL socket checks and Windows `curl.exe` against `/`, `/prod-api/captchaImage`, and the media API endpoint used by the deployment.
 
 Expected: nginx serves the UI, backend returns a non-error JSON response, and media service responds.
 
-- [ ] **Step 3: Re-run Git and video integrity checks on D**
+- [x] **Step 3: Re-run Git and video integrity checks on D**
 
 Expected: all five primary repositories resolve the same commits/remotes and all preserved videos match the baseline hashes.
 
-- [ ] **Step 4: Keep rollback material until the user elects cleanup**
+- [x] **Step 4: Keep rollback material until the user elects cleanup**
 
 Do not recursively delete the old C-drive project tree during this migration run. The live WSL VHDX will already have moved to D; the remaining C tree is a recoverable source backup that can be removed after the user has used the migrated service successfully.
 
